@@ -20,7 +20,7 @@ export default function ScoreScreen({ score, ok, bad, drops, best, onAgain, them
       <div style={{ display: 'flex', gap: '3rem', maxWidth: 960, width: '100%' }}>
         <div style={{ flex: 1 }}>
           {/* Victory boss */}
-          <div style={{ width: 80, height: 80, backgroundImage: 'url(/assets/microwave/Walk.png)', backgroundSize: '480px 80px', imageRendering: 'pixelated', animation: 'spriteWalk 0.8s steps(6) infinite', marginBottom: '.75rem' }} />
+          <img src="/assets/kenney/robot-pack/Side view/robot_redJump.png" alt="" style={{ width: 80, height: 80, imageRendering: 'auto', animation: 'float 2s ease-in-out infinite', marginBottom: '.75rem' }} />
           <div style={{ fontSize: '.7rem', textTransform: 'uppercase', letterSpacing: '.15em', color: 'var(--n-turquoise)', fontWeight: 700 }}>{isHigh ? '🏆 New High Score!' : 'Mission Complete'}</div>
           <div style={{ fontSize: '4rem', fontWeight: 900, lineHeight: 1, marginBottom: '1.5rem' }}>{score.toLocaleString()}</div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '.6rem', marginBottom: '1.5rem' }}>

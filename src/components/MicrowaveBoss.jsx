@@ -1,33 +1,32 @@
 import { getBossAnim } from '../data/bossDialogue';
 
-const SPRITES = {
-  Idle: { src: '/assets/microwave/Idle.png', frames: 5, w: 400 },
-  Walk: { src: '/assets/microwave/Walk.png', frames: 6, w: 480 },
-  Attack: { src: '/assets/microwave/Attack.png', frames: 15, w: 1200 },
-  Hit: { src: '/assets/microwave/Hit.png', frames: 4, w: 320 },
-  Death: { src: '/assets/microwave/Death.png', frames: 8, w: 640 },
+const BASE = '/assets/kenney/robot-pack/Side view/robot_red';
+
+const POSE_MAP = {
+  Idle: 'Body', Walk: 'Jump', Attack: 'Damage2', Hit: 'Hurt', Death: 'Damage1',
 };
-const ANIM_NAMES = { Idle: 'spriteIdle', Walk: 'spriteWalk', Attack: 'spriteAttack', Hit: 'spriteHit', Death: 'spriteDeath' };
 
 export default function MicrowaveBoss({ event = 'idle', line = '', elapsed = 0 }) {
   const animKey = getBossAnim(event);
-  const sprite = SPRITES[animKey] || SPRITES.Idle;
-  const animName = ANIM_NAMES[animKey] || 'spriteIdle';
+  const pose = POSE_MAP[animKey] || 'Body';
+  const src = `${BASE}${pose}.png`;
 
-  // Boss grows bigger over time: 80px at start → 140px at 60s
-  const scale = Math.min(140, 80 + (elapsed / 1000) * 1);
-  const speed = animKey === 'Attack' ? 1.2 : animKey === 'Hit' ? 0.4 : 0.8;
+  // Boss grows bigger over time: 72px at start → 130px at 60s
+  const scale = Math.min(130, 72 + (elapsed / 1000) * 1);
+  const isAngry = pose === 'Hurt' || pose === 'Damage1' || pose === 'Damage2';
 
   return (
-    <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12, minWidth: 320 }}>
-      <div style={{
-        width: scale, height: scale,
-        backgroundImage: `url(${sprite.src})`,
-        backgroundSize: `${sprite.w * (scale / 80)}px ${scale}px`,
-        imageRendering: 'pixelated',
-        animation: `${animName} ${speed}s steps(${sprite.frames}) infinite`,
-        transition: 'width 0.5s, height 0.5s',
-      }} />
+    <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12, minWidth: 300 }}>
+      <img
+        src={src}
+        alt="Boss"
+        style={{
+          width: scale, height: scale,
+          imageRendering: 'auto',
+          animation: isAngry ? 'shake 0.5s ease-in-out infinite' : 'float 2.5s ease-in-out infinite',
+          transition: 'width 0.5s, height 0.5s',
+        }}
+      />
       {line && (
         <div style={{
           background: 'var(--bg2)', border: '1px solid var(--border)',

@@ -12,13 +12,8 @@ export default function IntroScreen({ onStart, theme }) {
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>{theme.dark ? '☀️' : '🌙'}</button>
       </div>
-      <div style={{
-        width: 96, height: 96,
-        backgroundImage: 'url(/assets/microwave/Idle.png)',
-        backgroundSize: '480px 96px', imageRendering: 'pixelated',
-        animation: 'spriteIdle 0.8s steps(5) infinite',
-        marginBottom: '1.5rem',
-      }} />
+      <img src="/assets/kenney/robot-pack/Side view/robot_redBody.png" alt=""
+        style={{ width: 96, height: 96, imageRendering: 'auto', animation: 'float 2s ease-in-out infinite', marginBottom: '1.5rem' }} />
       <h1 style={{ fontSize: 'clamp(2.5rem,6vw,4rem)', fontWeight: 900, lineHeight: 1.1, marginBottom: '.4rem' }}>
         <span style={{ color: 'var(--n-turquoise)' }}>Campaign</span>{' '}
         <span style={{ color: 'var(--n-purple)' }}>Chaos</span>
