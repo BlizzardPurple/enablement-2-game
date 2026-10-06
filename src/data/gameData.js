@@ -19,7 +19,6 @@ export const DATABASE = [
   { id: 'snapchat-eu', name: 'Snapchat EU', region: 'EU' },
   { id: 'snapchat-mena', name: 'Snapchat MENA', region: 'MENA' },
   { id: 'pinterest-global', name: 'Pinterest Global', region: 'Global' },
-  { id: 'pinterest-us', name: 'Pinterest US', region: 'US' },
   { id: 'twitter-us', name: 'Twitter/X US', region: 'US' },
   { id: 'twitter-emea', name: 'Twitter/X EMEA', region: 'EMEA' },
   { id: 'twitter-jp', name: 'Twitter/X JP', region: 'JP' },
@@ -28,7 +27,6 @@ export const DATABASE = [
   { id: 'amazon-eu', name: 'Amazon Ads EU', region: 'EU' },
   { id: 'amazon-jp', name: 'Amazon Ads JP', region: 'JP' },
   { id: 'linkedin-global', name: 'LinkedIn Global', region: 'Global' },
-  { id: 'linkedin-us', name: 'LinkedIn US', region: 'US' },
   { id: 'reddit-us', name: 'Reddit US', region: 'US' },
   { id: 'twitch-global', name: 'Twitch Global', region: 'Global' },
   { id: 'roku-us', name: 'Roku US', region: 'US' },
@@ -36,91 +34,77 @@ export const DATABASE = [
   { id: 'disney-us', name: 'Disney+ US', region: 'US' },
   { id: 'disney-emea', name: 'Disney+ EMEA', region: 'EMEA' },
 ];
-
 export const DB_LOOKUP = Object.fromEntries(DATABASE.map(d => [d.id, d.name]));
 
 export const BELT_ITEMS = [
-  { label: 'spotfy music (音楽)', answerId: 'spotify-jp', diff: 3 },
-  { label: 'SPOTIFY UNITED STATES', answerId: 'spotify-us', diff: 1 },
-  { label: 'Sptify Franc', answerId: 'spotify-fr', diff: 2 },
-  { label: 'spotify_brasil_ad', answerId: 'spotify-br', diff: 1 },
-  { label: 'スポティファイ JP', answerId: 'spotify-jp', diff: 3 },
-  { label: 'spot1fy US region', answerId: 'spotify-us', diff: 2 },
-  { label: 'FACE BOOK united states', answerId: 'facebook-us', diff: 1 },
-  { label: 'fb latam region ads', answerId: 'facebook-latam', diff: 2 },
-  { label: 'facebook_EMEA_display', answerId: 'facebook-emea', diff: 1 },
-  { label: 'FaceBook LatAm', answerId: 'facebook-latam', diff: 1 },
-  { label: 'fcebook us mobile', answerId: 'facebook-us', diff: 2 },
-  { label: 'u-tube global', answerId: 'youtube-global', diff: 2 },
-  { label: 'UTUBE_GLOBAL_PREROLL', answerId: 'youtube-global', diff: 2 },
-  { label: 'ユーチューブ日本', answerId: 'youtube-jp', diff: 3 },
-  { label: 'youtube glbal video', answerId: 'youtube-global', diff: 1 },
-  { label: 'YT japan region', answerId: 'youtube-jp', diff: 1 },
-  { label: 'tiktok emea region', answerId: 'tiktok-emea', diff: 1 },
-  { label: 'TIK TOK US Mobile', answerId: 'tiktok-us', diff: 1 },
-  { label: 'tik_tok_apac_video', answerId: 'tiktok-apac', diff: 1 },
-  { label: 'ティックトック APAC', answerId: 'tiktok-apac', diff: 3 },
-  { label: 'tikktok US display', answerId: 'tiktok-us', diff: 2 },
-  { label: 'SNAP CHAT U.S.', answerId: 'snapchat-us', diff: 1 },
-  { label: 'snapcht europe', answerId: 'snapchat-eu', diff: 2 },
-  { label: 'PINTREST global', answerId: 'pinterest-global', diff: 2 },
-  { label: 'X (twitter) US', answerId: 'twitter-us', diff: 1 },
-  { label: 'twiter EMEA promoted', answerId: 'twitter-emea', diff: 2 },
-  { label: 'HULU united states OTT', answerId: 'hulu-us', diff: 1 },
-  { label: 'hlu US streaming', answerId: 'hulu-us', diff: 2 },
-  { label: 'amzn ads US', answerId: 'amazon-us', diff: 2 },
-  { label: 'AMAZON ADS europe', answerId: 'amazon-eu', diff: 1 },
-  { label: 'amazn_eu_display', answerId: 'amazon-eu', diff: 2 },
-  { label: 'spotify deutschland', answerId: 'spotify-de', diff: 2 },
-  { label: 'FB asia pacific', answerId: 'facebook-apac', diff: 2 },
-  { label: 'yt india video', answerId: 'youtube-in', diff: 1 },
-  { label: 'TIKTOK latin america', answerId: 'tiktok-latam', diff: 1 },
-  { label: 'snpchat middle east', answerId: 'snapchat-mena', diff: 2 },
-  { label: 'PINTEREST us only', answerId: 'pinterest-us', diff: 1 },
-  { label: 'ツイッター日本', answerId: 'twitter-jp', diff: 3 },
-  { label: 'twitter JP promoted', answerId: 'twitter-jp', diff: 1 },
-  { label: 'amzn japan ads', answerId: 'amazon-jp', diff: 2 },
-  { label: 'LINKEDIN glbl', answerId: 'linkedin-global', diff: 2 },
-  { label: 'linked in US', answerId: 'linkedin-us', diff: 1 },
-  { label: 'redddit US ads', answerId: 'reddit-us', diff: 2 },
-  { label: 'TWITCH glbal stream', answerId: 'twitch-global', diff: 1 },
-  { label: 'roku united states', answerId: 'roku-us', diff: 1 },
-  { label: 'PEACOK US streaming', answerId: 'peacock-us', diff: 2 },
-  { label: 'disneyplus US ott', answerId: 'disney-us', diff: 1 },
-  { label: 'disney+ EMEA region', answerId: 'disney-emea', diff: 1 },
+  { label:'spotfy music (音楽)', answerId:'spotify-jp', diff:3 },
+  { label:'SPOTIFY UNITED STATES', answerId:'spotify-us', diff:1 },
+  { label:'Sptify Franc', answerId:'spotify-fr', diff:2 },
+  { label:'spotify_brasil_ad', answerId:'spotify-br', diff:1 },
+  { label:'スポティファイ JP', answerId:'spotify-jp', diff:3 },
+  { label:'spot1fy US region', answerId:'spotify-us', diff:2 },
+  { label:'FACE BOOK united states', answerId:'facebook-us', diff:1 },
+  { label:'fb latam region ads', answerId:'facebook-latam', diff:2 },
+  { label:'facebook_EMEA_display', answerId:'facebook-emea', diff:1 },
+  { label:'FaceBook LatAm', answerId:'facebook-latam', diff:1 },
+  { label:'fcebook us mobile', answerId:'facebook-us', diff:2 },
+  { label:'u-tube global', answerId:'youtube-global', diff:2 },
+  { label:'UTUBE_GLOBAL_PREROLL', answerId:'youtube-global', diff:2 },
+  { label:'ユーチューブ日本', answerId:'youtube-jp', diff:3 },
+  { label:'youtube glbal video', answerId:'youtube-global', diff:1 },
+  { label:'YT japan region', answerId:'youtube-jp', diff:1 },
+  { label:'tiktok emea region', answerId:'tiktok-emea', diff:1 },
+  { label:'TIK TOK US Mobile', answerId:'tiktok-us', diff:1 },
+  { label:'tik_tok_apac_video', answerId:'tiktok-apac', diff:1 },
+  { label:'ティックトック APAC', answerId:'tiktok-apac', diff:3 },
+  { label:'tikktok US display', answerId:'tiktok-us', diff:2 },
+  { label:'SNAP CHAT U.S.', answerId:'snapchat-us', diff:1 },
+  { label:'snapcht europe', answerId:'snapchat-eu', diff:2 },
+  { label:'PINTREST global', answerId:'pinterest-global', diff:2 },
+  { label:'X (twitter) US', answerId:'twitter-us', diff:1 },
+  { label:'twiter EMEA promoted', answerId:'twitter-emea', diff:2 },
+  { label:'HULU united states OTT', answerId:'hulu-us', diff:1 },
+  { label:'hlu US streaming', answerId:'hulu-us', diff:2 },
+  { label:'amzn ads US', answerId:'amazon-us', diff:2 },
+  { label:'AMAZON ADS europe', answerId:'amazon-eu', diff:1 },
+  { label:'amazn_eu_display', answerId:'amazon-eu', diff:2 },
+  { label:'spotify deutschland', answerId:'spotify-de', diff:2 },
+  { label:'FB asia pacific', answerId:'facebook-apac', diff:2 },
+  { label:'yt india video', answerId:'youtube-in', diff:1 },
+  { label:'TIKTOK latin america', answerId:'tiktok-latam', diff:1 },
+  { label:'snpchat middle east', answerId:'snapchat-mena', diff:2 },
+  { label:'ツイッター日本', answerId:'twitter-jp', diff:3 },
+  { label:'amzn japan ads', answerId:'amazon-jp', diff:2 },
+  { label:'LINKEDIN glbl', answerId:'linkedin-global', diff:2 },
+  { label:'redddit US ads', answerId:'reddit-us', diff:2 },
+  { label:'TWITCH glbal stream', answerId:'twitch-global', diff:1 },
+  { label:'roku united states', answerId:'roku-us', diff:1 },
+  { label:'PEACOK US streaming', answerId:'peacock-us', diff:2 },
+  { label:'disneyplus US ott', answerId:'disney-us', diff:1 },
+  { label:'disney+ EMEA region', answerId:'disney-emea', diff:1 },
 ];
 
 export const POWERUPS = [
-  { id: 'freeze', name: 'Belt Freeze', icon: '❄️', dur: 5000 },
-  { id: 'autosuggest', name: 'Auto-Suggest', icon: '🔍', dur: 15000 },
-  { id: 'clear', name: 'Clear All', icon: '💨', dur: 0 },
-  { id: 'slowmo', name: 'Slow Motion', icon: '🐢', dur: 5000 },
+  { id:'freeze', name:'Belt Freeze', icon:'❄️', dur:5000 },
+  { id:'suggest', name:'Auto-Suggest', icon:'🔍', dur:12000 },
+  { id:'clear', name:'Clear All', icon:'💨', dur:0 },
+  { id:'slow', name:'Slow Motion', icon:'🐢', dur:5000 },
+  { id:'auto', name:'Auto-Match', icon:'🎯', dur:0 },
+  { id:'time', name:'+5 Seconds', icon:'⏰', dur:0 },
+  { id:'shield', name:'Shield', icon:'🛡️', dur:8000 },
+  { id:'reverse', name:'Reverse', icon:'🔄', dur:5000 },
 ];
 
 export const SCORE = {
-  BELT_1: 100, BELT_2: 150, BELT_3: 200,
-  SPEED_BONUS: 50, SPEED_MS: 2000,
-  STREAK_BONUS: 25,
-  WRONG: -50, DROP: -75,
-  E2_BASE: 50,
-  POWERUP_BONUS: 200,
+  BASE:100, SPEED:50, SPEED_MS:2500, STREAK:25,
+  WRONG:-50, DROP:-75, POWERUP:200, E2_BASE:50,
 };
+export const POWERUP_CHANCE = 0.2;
 
-/** ~20% chance a spawned item is a powerup package */
-export const POWERUP_CHANCE = 0.18;
-
-export function pickItem(maxDiff = 2) {
-  const pool = BELT_ITEMS.filter(i => i.diff <= maxDiff);
-  const pick = pool[Math.floor(Math.random() * pool.length)];
-  const isPowerup = Math.random() < POWERUP_CHANCE;
-  const powerup = isPowerup ? POWERUPS[Math.floor(Math.random() * POWERUPS.length)] : null;
-  return {
-    ...pick,
-    uid: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-    belt: 1,
-    spawnTime: Date.now(),
-    beltEntryTime: Date.now(),
-    status: 'active',
-    powerup,
-  };
+export function pickItem(maxDiff=2) {
+  const pool = BELT_ITEMS.filter(i=>i.diff<=maxDiff);
+  const pick = pool[Math.floor(Math.random()*pool.length)];
+  const isPU = Math.random() < POWERUP_CHANCE;
+  const pu = isPU ? POWERUPS[Math.floor(Math.random()*POWERUPS.length)] : null;
+  return { ...pick, uid:`${Date.now()}-${Math.random().toString(36).slice(2,7)}`, belt:1, spawnTime:Date.now(), beltEntryTime:Date.now(), status:'active', powerup:pu };
 }

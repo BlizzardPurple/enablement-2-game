@@ -1,32 +1,30 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Fira+Code:wght@400;600;700&display=swap');
 @import './theme.css';
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html, body, #root { width: 100%; height: 100%; overflow: hidden; }
-body {
-  font-family: 'Inter', -apple-system, sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  -webkit-font-smoothing: antialiased;
-  transition: background 0.3s, color 0.3s;
-}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body,#root{width:100%;height:100%;overflow:hidden}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;transition:background .3s,color .3s}
 
-/* Animations */
-@keyframes beltScroll { 0% { background-position: 0 0; } 100% { background-position: 60px 0; } }
-@keyframes beltScrollR { 0% { background-position: 0 0; } 100% { background-position: -60px 0; } }
-@keyframes shake { 0%,100%{transform:translateX(0)} 15%,45%,75%{transform:translateX(-6px)} 30%,60%,90%{transform:translateX(6px)} }
-@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
-@keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.06)} }
-@keyframes scoreFloat { 0%{opacity:1;transform:translateY(0) scale(1)} 100%{opacity:0;transform:translateY(-50px) scale(1.4)} }
-@keyframes slideL { from{transform:translateY(-50%) translateX(0)} to{transform:translateY(-50%) translateX(calc(100vw + 200px))} }
-@keyframes slideR { from{transform:translateY(-50%) translateX(0)} to{transform:translateY(-50%) translateX(calc(-100vw - 200px))} }
+/* ── Animations ── */
+@keyframes beltL{0%{background-position:0 0}100%{background-position:40px 0}}
+@keyframes beltR{0%{background-position:0 0}100%{background-position:-40px 0}}
+@keyframes shake{0%,100%{transform:translateX(0)}15%,45%,75%{transform:translateX(-5px)}30%,60%,90%{transform:translateX(5px)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+@keyframes pop{0%{opacity:0;transform:scale(.5)}60%{transform:scale(1.12)}100%{opacity:1;transform:scale(1)}}
+@keyframes scoreUp{0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-50px) scale(1.4)}}
+@keyframes glow{0%,100%{box-shadow:0 0 8px var(--glow)}50%{box-shadow:0 0 24px var(--glow),0 0 48px rgba(57,196,195,.12)}}
+@keyframes flash{0%{opacity:0}10%{opacity:1}85%{opacity:1}100%{opacity:0}}
+@keyframes explode{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(2.5) rotate(15deg)}}
+@keyframes moveL{from{left:-220px}to{left:calc(100% + 40px)}}
+@keyframes moveR{from{right:-220px}to{right:calc(100% + 40px)}}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
 
-/* Package animations: always start from belt start edge, travel to the opposite end */
-@keyframes pkgLTR { from{transform:translateY(-50%) translateX(-20px)} to{transform:translateY(-50%) translateX(calc(100vw))} }
-@keyframes pkgRTL { from{transform:translateY(-50%) translateX(20px)} to{transform:translateY(-50%) translateX(calc(-100vw))} }
-@keyframes popIn { 0%{opacity:0;transform:scale(0.5)} 50%{transform:scale(1.15)} 100%{opacity:1;transform:scale(1)} }
-@keyframes explode { 0%{opacity:1;transform:scale(1)} 100%{opacity:0;transform:scale(2.5)} }
-@keyframes glow { 0%,100%{box-shadow:0 0 8px var(--glow)} 50%{box-shadow:0 0 28px var(--glow),0 0 56px rgba(57,196,195,0.1)} }
-@keyframes flashIn { 0%{opacity:0} 10%{opacity:1} 85%{opacity:1} 100%{opacity:0} }
+/* Microwave boss sprite animation */
+@keyframes spriteIdle{from{background-position:0 0}to{background-position:-400px 0}}
+@keyframes spriteWalk{from{background-position:0 0}to{background-position:-480px 0}}
+@keyframes spriteAttack{from{background-position:0 0}to{background-position:-1200px 0}}
+@keyframes spriteHit{from{background-position:0 0}to{background-position:-320px 0}}
+@keyframes spriteDeath{from{background-position:0 0}to{background-position:-640px 0}}
 
-.shake { animation: shake 0.5s ease-in-out; }
+.shake{animation:shake .5s ease-in-out}

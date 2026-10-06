@@ -1,38 +1,31 @@
 import { useEffect } from 'react';
 
-export default function E2Activation({ onActivate }) {
-  useEffect(() => { const t = setTimeout(onActivate, 3000); return () => clearTimeout(t); }, [onActivate]);
+export default function E2Screen({ onGo }) {
+  useEffect(() => { const t = setTimeout(onGo, 3500); return () => clearTimeout(t); }, [onGo]);
 
   return (
     <div style={{
       position: 'fixed', inset: 0, display: 'flex', flexDirection: 'column',
       alignItems: 'center', justifyContent: 'center', zIndex: 600,
-      background: '#000', animation: 'flashIn 3s ease-in-out',
+      background: '#000', animation: 'flash 3.5s ease-in-out',
     }}>
       <div style={{
         position: 'absolute', width: '60vw', height: '60vw', borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(57,196,195,0.25), transparent 70%)',
+        background: 'radial-gradient(circle,rgba(57,196,195,0.25),transparent 70%)',
         animation: 'pulse 1.2s ease-in-out infinite',
       }} />
-
       <div style={{
-        fontSize: 'clamp(3rem, 7vw, 5.5rem)', fontWeight: 900,
-        background: 'linear-gradient(135deg, var(--n-turquoise), var(--n-purple))',
+        fontSize: 'clamp(2rem,5vw,4rem)', fontWeight: 900, letterSpacing: '0.05em',
+        background: 'linear-gradient(135deg,var(--n-turquoise),var(--n-purple))',
         WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
-        zIndex: 1, animation: 'shake 0.5s ease-in-out',
+        zIndex: 1, animation: 'shake 0.5s ease-in-out', textAlign: 'center',
       }}>
-        ENABLEMENT 2.0
+        ⚡ ENABLEMENT 2.0<br/>POWERUP
       </div>
-
-      <div style={{
-        fontSize: '1.2rem', color: 'var(--n-turquoise)', marginTop: '0.8rem',
-        fontWeight: 700, zIndex: 1, letterSpacing: '0.15em', textTransform: 'uppercase',
-      }}>
+      <div style={{ fontSize: '1.1rem', color: 'var(--n-turquoise)', marginTop: '.8rem', fontWeight: 700, zIndex: 1, letterSpacing: '.15em', textTransform: 'uppercase' }}>
         ACTIVATED
       </div>
-
-      {/* Floating particles */}
-      {Array.from({ length: 24 }).map((_, i) => (
+      {Array.from({ length: 20 }).map((_, i) => (
         <div key={i} style={{
           position: 'absolute', width: 6, height: 6, borderRadius: '50%',
           background: i % 3 === 0 ? 'var(--n-turquoise)' : i % 3 === 1 ? 'var(--n-purple)' : 'var(--n-orange)',

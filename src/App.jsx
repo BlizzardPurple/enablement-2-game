@@ -1,112 +1,96 @@
-import useGameEngine from './hooks/useGameEngine';
+import useGame from './hooks/useGame';
 import useTheme from './hooks/useTheme';
 import IntroScreen from './pages/IntroScreen';
-import E2Activation from './pages/E2Activation';
+import E2Screen from './pages/E2Screen';
 import ScoreScreen from './pages/ScoreScreen';
-import BeltSystem from './components/BeltSystem';
+import SCurveBelts from './components/SCurveBelts';
 import SearchInput from './components/SearchInput';
-import ScoreDisplay from './components/ScoreDisplay';
-import RobotBoss from './components/RobotBoss';
-import FloatingScores from './components/FloatingScores';
+import MicrowaveBoss from './components/MicrowaveBoss';
+import Floats from './components/Floats';
 import FactoryBG from './components/FactoryBG';
-import ThemeToggle from './components/ThemeToggle';
-import { getBossEmotion } from './data/bossDialogue';
 
 export default function App() {
-  const game = useGameEngine();
+  const g = useGame();
   const theme = useTheme();
 
-  if (game.phase === 'INTRO') return <IntroScreen onStart={game.startGame} theme={theme} />;
-  if (game.phase === 'SCORE') {
-    return (
-      <ScoreScreen
-        score={game.score} correct={game.correct} wrong={game.wrong}
-        drops={game.drops} bestStreak={game.bestStreak}
-        onRestart={() => game.setPhase('INTRO')} theme={theme}
-      />
-    );
-  }
-  if (game.phase === 'E2_ACTIVATE') return <E2Activation onActivate={game.activateE2} />;
+  if (g.phase === 'INTRO') return <IntroScreen onStart={g.start} theme={theme} />;
+  if (g.phase === 'SCORE') return <ScoreScreen score={g.score} ok={g.ok} bad={g.bad} drops={g.drops} best={g.best} onAgain={() => g.setPhase('INTRO')} theme={theme} />;
+  if (g.phase === 'E2_ACTIVATE') return <E2Screen onGo={g.activateE2} />;
+
+  // Determine worker robot mood
+  const perf = g.streak >= 3 ? 'good' : g.drops > 2 ? 'bad' : 'ok';
 
   return (
-    <div className={game.shaking ? 'shake' : ''} style={{
+    <div className={g.shaking ? 'shake' : ''} style={{
       height: '100vh', display: 'flex', flexDirection: 'column',
-      padding: '12px 20px', gap: 8, position: 'relative',
-      transition: 'background 0.5s',
+      padding: '10px 20px', gap: 6, position: 'relative',
     }}>
       <FactoryBG />
 
       {/* Freeze overlay */}
-      {game.freezeOverlay && (
+      {g.freezeVfx && (
         <div style={{
           position: 'fixed', inset: 0, zIndex: 50, pointerEvents: 'none',
-          background: 'rgba(57, 196, 195, 0.08)',
-          border: '4px solid rgba(57, 196, 195, 0.3)',
-          borderRadius: 0,
+          background: 'rgba(57,196,195,0.06)', border: '4px solid rgba(57,196,195,0.25)',
           animation: 'glow 1s ease-in-out infinite',
         }}>
-          <div style={{
-            position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
-            fontSize: '3rem', opacity: 0.3, animation: 'pulse 1s ease-in-out infinite',
-          }}>❄️</div>
+          <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', fontSize: '4rem', opacity: 0.2, animation: 'pulse 1s ease-in-out infinite' }}>❄️</div>
         </div>
       )}
 
-      {/* Top bar */}
+      {/* Top bar: boss + score + theme */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 10 }}>
-        <RobotBoss emotion={getBossEmotion(game.bossEvent)} line={game.bossLine} />
-        <ScoreDisplay
-          score={game.score} streak={game.streak}
-          timePct={game.timePct} timeLeftSec={game.timeLeftSec} e2={game.e2}
-        />
-        <ThemeToggle dark={theme.dark} onToggle={theme.toggle} />
+        <MicrowaveBoss event={g.bossEvt} line={g.bossLine} elapsed={g.elapsed} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+          {/* Score */}
+          <div style={{ textAlign: 'center' }}>
+            <div style={{
+              fontSize: '3rem', fontWeight: 900, lineHeight: 1,
+              color: g.e2 ? 'var(--n-turquoise)' : 'var(--text)',
+              textShadow: g.e2 ? '0 0 24px rgba(57,196,195,0.5)' : 'none',
+            }}>{g.score.toLocaleString()}</div>
+            {g.streak > 1 && <div style={{ fontSize: '.9rem', fontWeight: 800, color: 'var(--streak)' }}>🔥 {g.streak}×</div>}
+          </div>
+          {/* Timer */}
+          <div style={{ width: 180 }}>
+            <div style={{ height: 10, background: 'var(--bg2)', borderRadius: 5, overflow: 'hidden' }}>
+              <div style={{ height: '100%', width: `${g.pct}%`, background: g.pct < 20 ? 'var(--n-pink)' : g.e2 ? 'var(--n-turquoise)' : 'var(--n-purple)', borderRadius: 5, transition: 'width .1s linear' }} />
+            </div>
+            <div style={{ fontSize: '.85rem', fontWeight: 700, color: 'var(--text2)', textAlign: 'center', marginTop: 3 }}>{g.leftSec}s</div>
+          </div>
+          {/* Theme toggle */}
+          <button onClick={theme.toggle} style={{ width: 36, height: 36, borderRadius: '50%', border: '1px solid var(--border)', background: 'var(--bg2)', cursor: 'pointer', fontSize: '1.1rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            {theme.dark ? '☀️' : '🌙'}
+          </button>
+        </div>
       </div>
 
       {/* Active powerup banner */}
-      {game.activePowerup && (
-        <div style={{
-          textAlign: 'center', padding: '4px 0', zIndex: 10,
-          fontSize: '0.85rem', fontWeight: 800, color: 'var(--n-orange)',
-          animation: 'popIn 0.3s ease-out',
-        }}>
-          {game.activePowerup.icon} {game.activePowerup.name} Active
+      {g.pu && (
+        <div style={{ textAlign: 'center', fontSize: '.85rem', fontWeight: 800, color: 'var(--n-orange)', animation: 'pop 0.3s ease-out', zIndex: 10 }}>
+          {g.pu.icon} {g.pu.name} Active
         </div>
       )}
 
       {/* E2 banner */}
-      {game.e2 && (
-        <div style={{
-          textAlign: 'center', padding: '4px 0', zIndex: 10,
-          fontSize: '0.8rem', fontWeight: 800, color: 'var(--n-turquoise)',
-          letterSpacing: '0.15em', textTransform: 'uppercase',
-          animation: 'glow 2s ease-in-out infinite',
-        }}>
-          🚀 ENABLEMENT 2.0 ACTIVE — AI ASSIST ON
+      {g.e2 && (
+        <div style={{ textAlign: 'center', fontSize: '.8rem', fontWeight: 800, color: 'var(--n-turquoise)', letterSpacing: '.12em', textTransform: 'uppercase', animation: 'glow 2s ease-in-out infinite', zIndex: 10 }}>
+          🚀 ENABLEMENT 2.0 — AI ASSIST
         </div>
       )}
 
-      {/* Belt system */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', zIndex: 10 }}>
-        <BeltSystem
-          belt={game.belt}
-          selectedUid={game.selectedItem}
-          onSelect={(uid) => game.setSelectedItem(uid)}
-          frozen={game.frozen} slow={game.slow} e2={game.e2}
-          elapsed={game.elapsed}
-        />
+      {/* S-Curve Belts */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', zIndex: 10, position: 'relative' }}>
+        <SCurveBelts belt={g.belt} selUid={g.sel} onSel={uid => g.setSel(uid)}
+          frozen={g.frozen} slow={g.slow} e2={g.e2} reversed={g.reversed} perf={perf} />
       </div>
 
       {/* Search */}
-      <div style={{ display: 'flex', justifyContent: 'center', paddingBottom: 12, zIndex: 10 }}>
-        <SearchInput
-          selectedItem={game.belt.items.find(i => i.uid === game.selectedItem)}
-          onMatch={game.handleMatch}
-          e2={game.e2}
-          autoSuggest={game.activePowerup?.id === 'autosuggest'}
-        />
+      <div style={{ display: 'flex', justifyContent: 'center', paddingBottom: 10, zIndex: 10 }}>
+        <SearchInput selItem={g.belt.items.find(i => i.uid === g.sel)} onMatch={g.match} e2={g.e2} suggest={g.pu?.id === 'suggest'} />
       </div>
 
-      <FloatingScores floats={game.floats} />
+      <Floats items={g.floats} />
     </div>
   );
 }
