@@ -97,12 +97,15 @@ export const SCORE = {
 };
 export const POWERUP_CHANCE = 0.3;
 
-export function pickItem(maxDiff=2, elapsed=0, isE2=false) {
-  const pool = BELT_ITEMS.filter(i=>i.diff<=maxDiff);
-  const pick = pool[Math.floor(Math.random()*pool.length)];
-  // No powerups before 10s or during E2
+export function pickItem(maxDiff=2, elapsed=0, isE2=false, lastAnswerId=null) {
+  let pool = BELT_ITEMS.filter(i=>i.diff<=maxDiff);
+  // No consecutive duplicates
+  if (lastAnswerId && pool.length > 1) {
+    pool = pool.filter(i => i.answerId !== lastAnswerId);
+  }
   const canPU = elapsed >= 10000 && !isE2;
   const isPU = canPU && Math.random() < POWERUP_CHANCE;
   const pu = isPU ? POWERUPS[Math.floor(Math.random()*POWERUPS.length)] : null;
+  const pick = pool[Math.floor(Math.random()*pool.length)];
   return { ...pick, uid:`${Date.now()}-${Math.random().toString(36).slice(2,7)}`, belt:1, spawnTime:Date.now(), beltEntryTime:Date.now(), status:'active', powerup:pu };
 }

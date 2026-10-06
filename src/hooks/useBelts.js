@@ -1,39 +1,30 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { pickItem } from '../data/gameData';
 
-/**
- * Simplified belt system — packages travel along one continuous S-path.
- * No more belt 1/2/3 transitions. Each package has a spawn time and total
- * travel duration. When it reaches 100% of the path, it's dropped.
- *
- * Collision: packages have a "path %" position. New packages only spawn
- * if the start of the path is clear.
- */
-
-const TRAVEL_NORMAL = 18000; // 18s to traverse full S-path
-const TRAVEL_E2 = 12000;     // 1.5x faster
-const TRAVEL_SLOW = 36000;
-const PKG_SIZE_PCT = 8;      // package occupies ~8% of path length
+const BASE_TRAVEL = 18000;
+const PKG_SIZE_PCT = 8;
 const MIN_GAP_PCT = 4;
 
-export default function useBelts({ frozen, slow, e2, onDrop }) {
+export default function useBelts({ frozen, slow, e2, onDrop, diffMultiplier = 1 }) {
   const [items, setItems] = useState([]);
   const timers = useRef({});
+  const lastAnswerRef = useRef(null);
 
+  // Dynamic travel time based on game state and difficulty
   const getTravelTime = useCallback(() => {
     if (frozen) return 999999999;
-    if (slow) return TRAVEL_SLOW;
-    if (e2) return TRAVEL_E2;
-    return TRAVEL_NORMAL;
-  }, [frozen, slow, e2]);
+    let t = BASE_TRAVEL;
+    if (e2) t *= 0.65;           // E2: faster
+    if (slow) t *= 2;            // slow powerup
+    t /= diffMultiplier;         // dynamic difficulty scales speed
+    return Math.max(3000, t);    // floor at 3s
+  }, [frozen, slow, e2, diffMultiplier]);
 
-  // Get current position (0-100%) of a package on the path
   const getPos = useCallback((item) => {
     if (item.status !== 'active') return -1;
-    const travel = getTravelTime();
     const elapsed = Date.now() - item.spawnTime;
-    return Math.min(100, (elapsed / travel) * 100);
-  }, [getTravelTime]);
+    return Math.min(100, (elapsed / (item.travelTime || BASE_TRAVEL)) * 100);
+  }, []);
 
   const hasSpaceAtStart = useCallback((currentItems) => {
     for (const existing of currentItems) {
@@ -44,10 +35,8 @@ export default function useBelts({ frozen, slow, e2, onDrop }) {
     return true;
   }, [getPos]);
 
-  // Schedule drop timer
   const schedule = useCallback((item) => {
     if (timers.current[item.uid]) clearTimeout(timers.current[item.uid]);
-    const travel = getTravelTime();
     timers.current[item.uid] = setTimeout(() => {
       setItems(prev => {
         const found = prev.find(i => i.uid === item.uid && i.status === 'active');
@@ -56,14 +45,15 @@ export default function useBelts({ frozen, slow, e2, onDrop }) {
         return prev.map(i => i.uid === item.uid ? { ...i, status: 'dropped' } : i);
       });
       delete timers.current[item.uid];
-    }, travel);
-  }, [getTravelTime, onDrop]);
+    }, item.travelTime || BASE_TRAVEL);
+  }, [onDrop]);
 
   const spawn = useCallback((maxDiff = 2, elapsed = 0) => {
     setItems(prev => {
       if (!hasSpaceAtStart(prev)) return prev;
-      const item = pickItem(maxDiff, elapsed, e2);
+      const item = pickItem(maxDiff, elapsed, e2, lastAnswerRef.current);
       item.travelTime = getTravelTime();
+      lastAnswerRef.current = item.answerId;
       schedule(item);
       return [...prev, item];
     });
@@ -75,18 +65,16 @@ export default function useBelts({ frozen, slow, e2, onDrop }) {
   }, []);
 
   const setStatus = useCallback((uid, s) => setItems(prev => prev.map(i => i.uid === uid ? { ...i, status: s } : i)), []);
-  const clearAll = useCallback(() => { Object.values(timers.current).forEach(clearTimeout); timers.current = {}; setItems([]); }, []);
+  const clearAll = useCallback(() => { Object.values(timers.current).forEach(clearTimeout); timers.current = {}; setItems([]); lastAnswerRef.current = null; }, []);
 
-  // Most endangered = furthest along the path
   const endangered = useCallback(() => {
     const active = items.filter(i => i.status === 'active');
     return active.sort((a, b) => getPos(b) - getPos(a))[0] || null;
   }, [items, getPos]);
 
-  // Keep byBelt for compatibility (estimate belt from position)
-  const byBelt = useCallback(() => items, [items]);
+  const activeCount = items.filter(i => i.status === 'active').length;
 
   useEffect(() => () => Object.values(timers.current).forEach(clearTimeout), []);
 
-  return { items, spawn, remove, setStatus, clearAll, byBelt, endangered };
+  return { items, spawn, remove, setStatus, clearAll, endangered, activeCount };
 }

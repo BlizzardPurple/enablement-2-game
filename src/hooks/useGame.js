@@ -30,6 +30,7 @@ export default function useGame() {
   const [e2Flash, setE2Flash] = useState(false);
   const [puFlash, setPuFlash] = useState(null); // { name, iconId } or null
   const [bonusTime, setBonusTime] = useState(0);
+  const [diffMult, setDiffMult] = useState(1); // dynamic difficulty multiplier
 
   const t0 = useRef(0);
   const tick = useRef(null);
@@ -45,7 +46,7 @@ export default function useGame() {
   useEffect(() => { elR.current = elapsed; }, [elapsed]);
 
   const belt = useBelts({
-    frozen, slow, e2,
+    frozen, slow, e2, diffMultiplier: diffMult,
     onDrop: uid => {
       setDrops(d => d + 1);
       if (!e2R.current) setScore(s => Math.max(0, s + SCORE.DROP));
@@ -178,6 +179,28 @@ export default function useGame() {
     }
   }, [elapsed, phase, shake, bonusTime]);
 
+  // Dynamic difficulty — adjust every 5 seconds based on performance
+  useEffect(() => {
+    if (phase !== 'PLAYING' && phase !== 'E2') return;
+    const total = ok + bad + drops;
+    if (total < 3) return; // too early to judge
+    const ratio = ok / Math.max(1, total);
+    // Winning a lot (>70% correct, few drops): speed up
+    if (ratio > 0.7 && drops < 2) setDiffMult(m => Math.min(1.8, m + 0.05));
+    // Struggling (<40% correct or many drops): slow down
+    else if (ratio < 0.4 || drops > 4) setDiffMult(m => Math.max(0.6, m - 0.05));
+  }, [Math.floor(elapsed / 5000)]); // re-evaluate every 5s
+
+  // E2 instant respawn — if belt is empty during E2, spawn immediately
+  useEffect(() => {
+    if (phase !== 'E2') return;
+    if (belt.activeCount === 0) {
+      const el = elR.current;
+      const d = el < 10000 ? 1 : el < 25000 ? 2 : 3;
+      belt.spawn(d, el);
+    }
+  }, [phase, belt.activeCount, belt]);
+
   // Boss chatter
   useEffect(() => {
     if (phase !== 'PLAYING' && phase !== 'E2') return;
@@ -202,7 +225,7 @@ export default function useGame() {
     setScore(0); setStreak(0); setBest(0); setOk(0); setBad(0); setDrops(0); setElapsed(0);
     setFrozen(false); setSlow(false); setReversed(false); setShielded(false);
     setE2(false); e2R.current = false; setPu(null); setSel(null); setFloats([]);
-    setFreezeVfx(false); setBonusTime(0); setE2Flash(false); setPuFlash(null);
+    setFreezeVfx(false); setBonusTime(0); setE2Flash(false); setPuFlash(null); setDiffMult(1);
     e2Done.current = false;
     t0.current = Date.now();
     belt.clearAll();
