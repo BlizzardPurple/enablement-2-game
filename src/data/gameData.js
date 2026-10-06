@@ -95,7 +95,7 @@ export const SCORE = {
   BASE:100, SPEED:50, SPEED_MS:2500, STREAK:25,
   WRONG:-50, DROP:-75, POWERUP:200, E2_BASE:50,
 };
-export const POWERUP_CHANCE = 0.2;
+export const POWERUP_CHANCE = 0.3;
 
 export function pickItem(maxDiff=2, elapsed=0, isE2=false) {
   const pool = BELT_ITEMS.filter(i=>i.diff<=maxDiff);

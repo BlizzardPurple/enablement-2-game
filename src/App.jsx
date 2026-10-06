@@ -17,32 +17,22 @@ export default function App() {
   if (g.phase === 'SCORE') return <ScoreScreen score={g.score} ok={g.ok} bad={g.bad} drops={g.drops} best={g.best} onAgain={() => g.setPhase('INTRO')} theme={theme} />;
   if (g.phase === 'E2_ACTIVATE') return <E2Screen onGo={g.activateE2} />;
 
-  // Determine worker robot mood
   const perf = g.streak >= 3 ? 'good' : g.drops > 2 ? 'bad' : 'ok';
 
   return (
     <div className={g.shaking ? 'shake' : ''} style={{
       height: '100vh', display: 'flex', flexDirection: 'column',
       padding: '10px 20px', gap: 6, position: 'relative',
+      // E2: subtle turquoise tint on the whole screen instead of a banner
+      ...(g.e2 ? { boxShadow: 'inset 0 0 80px rgba(57,196,195,0.08), inset 0 0 200px rgba(57,196,195,0.04)' } : {}),
+      transition: 'box-shadow 0.5s',
     }}>
       <FactoryBG />
-
-      {/* Freeze overlay */}
-      {g.freezeVfx && (
-        <div style={{
-          position: 'fixed', inset: 0, zIndex: 50, pointerEvents: 'none',
-          background: 'rgba(57,196,195,0.06)', border: '4px solid rgba(57,196,195,0.25)',
-          animation: 'glow 1s ease-in-out infinite',
-        }}>
-          <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', fontSize: '4rem', opacity: 0.2, animation: 'pulse 1s ease-in-out infinite' }}>❄️</div>
-        </div>
-      )}
 
       {/* Top bar: boss + score + theme */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 10 }}>
         <MicrowaveBoss event={g.bossEvt} line={g.bossLine} elapsed={g.elapsed} />
         <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
-          {/* Score */}
           <div style={{ textAlign: 'center' }}>
             <div style={{
               fontSize: '3rem', fontWeight: 900, lineHeight: 1,
@@ -51,31 +41,23 @@ export default function App() {
             }}>{g.score.toLocaleString()}</div>
             {g.streak > 1 && <div style={{ fontSize: '.9rem', fontWeight: 800, color: 'var(--streak)' }}>🔥 {g.streak}×</div>}
           </div>
-          {/* Timer */}
           <div style={{ width: 180 }}>
+            {/* Timer bar turns turquoise during E2 */}
             <div style={{ height: 10, background: 'var(--bg2)', borderRadius: 5, overflow: 'hidden' }}>
               <div style={{ height: '100%', width: `${g.pct}%`, background: g.pct < 20 ? 'var(--n-pink)' : g.e2 ? 'var(--n-turquoise)' : 'var(--n-purple)', borderRadius: 5, transition: 'width .1s linear' }} />
             </div>
             <div style={{ fontSize: '.85rem', fontWeight: 700, color: 'var(--text2)', textAlign: 'center', marginTop: 3 }}>{g.leftSec}s</div>
           </div>
-          {/* Theme toggle */}
           <button onClick={theme.toggle} style={{ width: 36, height: 36, borderRadius: '50%', border: '1px solid var(--border)', background: 'var(--bg2)', cursor: 'pointer', fontSize: '1.1rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             {theme.dark ? '☀️' : '🌙'}
           </button>
         </div>
       </div>
 
-      {/* Active powerup banner */}
-      {g.pu && (
+      {/* Active powerup — small inline */}
+      {g.pu && !g.e2 && (
         <div style={{ textAlign: 'center', fontSize: '.85rem', fontWeight: 800, color: 'var(--n-orange)', animation: 'pop 0.3s ease-out', zIndex: 10 }}>
           {g.pu.icon} {g.pu.name} Active
-        </div>
-      )}
-
-      {/* E2 banner */}
-      {g.e2 && (
-        <div style={{ textAlign: 'center', fontSize: '.8rem', fontWeight: 800, color: 'var(--n-turquoise)', letterSpacing: '.12em', textTransform: 'uppercase', animation: 'glow 2s ease-in-out infinite', zIndex: 10 }}>
-          🚀 ENABLEMENT 2.0 — AI ASSIST
         </div>
       )}
 
@@ -87,7 +69,7 @@ export default function App() {
 
       {/* Search */}
       <div style={{ display: 'flex', justifyContent: 'center', paddingBottom: 10, zIndex: 10 }}>
-        <SearchInput selItem={g.belt.items.find(i => i.uid === g.sel)} onMatch={g.match} e2={g.e2} suggest={g.pu?.id === 'suggest'} />
+        <SearchInput selItem={g.belt.items.find(i => i.uid === g.sel)} onMatch={g.match} e2={g.e2} />
       </div>
 
       <Floats items={g.floats} />

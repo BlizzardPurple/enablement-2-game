@@ -101,6 +101,7 @@ function PathPackage({ item, isSel, onSel, e2 }) {
         // This is the magic — follow the SVG path
         offsetPath: `path('${S_PATH}')`,
         offsetRotate: '0deg',
+        offsetAnchor: '50% 50%',
         offsetDistance: '0%',
         // Animate from 0% to 100% along the path
         animation: isAlive ? `followPath ${travelSec}s linear forwards` : undefined,
@@ -118,7 +119,6 @@ function PathPackage({ item, isSel, onSel, e2 }) {
         background: isSel ? 'var(--n-turquoise)' : hasPU ? 'var(--bg2)' : 'var(--bg3)',
         color: isSel ? '#002' : 'var(--text)',
         boxShadow: hasPU ? '0 0 12px rgba(255,148,8,0.4)' : isSel ? '0 0 14px var(--glow)' : 'var(--shadow)',
-        transform: 'translate(-50%, -50%)', // center on path point
         ...(stStyles[item.status] || {}),
       }}
     >

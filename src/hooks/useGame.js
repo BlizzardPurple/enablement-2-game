@@ -176,12 +176,13 @@ export default function useGame() {
 
   const activateE2 = useCallback(() => {
     setE2(true); e2R.current = true;
+    belt.clearAll(); // clear all packages on activation
     setPhase('E2');
     setBE('e2_activate'); setBL(getBossLine('e2_activate'));
     shake();
     t0.current = Date.now() - elR.current;
     startSpawn();
-  }, [shake, startSpawn]);
+  }, [belt, shake, startSpawn]);
 
   const start = useCallback(() => {
     setScore(0); setStreak(0); setBest(0); setOk(0); setBad(0); setDrops(0); setElapsed(0);

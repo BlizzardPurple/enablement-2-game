@@ -1,13 +1,14 @@
 import { useState, useRef, useEffect } from 'react';
 import { DATABASE } from '../data/gameData';
 
-export default function SearchInput({ selItem, onMatch, e2, suggest }) {
+export default function SearchInput({ selItem, onMatch, e2 }) {
   const [q, setQ] = useState('');
   const [open, setOpen] = useState(false);
   const [idx, setIdx] = useState(0);
   const ref = useRef(null);
   const ddRef = useRef(null);
 
+  // E2 mode: pre-fill correct answer
   useEffect(() => {
     if (e2 && selItem) {
       const ans = DATABASE.find(d => d.id === selItem.answerId);
@@ -19,14 +20,17 @@ export default function SearchInput({ selItem, onMatch, e2, suggest }) {
   useEffect(() => { if (ddRef.current && open) { const el = ddRef.current.children[idx]; if (el) el.scrollIntoView({ block: 'nearest' }); } }, [idx, open]);
 
   let list = q.length > 0 ? DATABASE.filter(d => d.name.toLowerCase().includes(q.toLowerCase())) : [];
-  // E2 mode: only 2 options — correct answer first, then 1 random wrong
+
+  // E2 mode: exactly 2 options — correct first + 1 random wrong
   if (e2 && selItem && list.length > 0) {
-    const correctEntry = list.find(d => d.id === selItem.answerId);
-    const wrongEntries = list.filter(d => d.id !== selItem.answerId);
-    const oneWrong = wrongEntries.length > 0 ? [wrongEntries[Math.floor(Math.random() * wrongEntries.length)]] : [];
-    list = correctEntry ? [correctEntry, ...oneWrong] : list.slice(0, 2);
+    const correct = list.find(d => d.id === selItem.answerId);
+    const wrongs = list.filter(d => d.id !== selItem.answerId);
+    const oneWrong = wrongs.length > 0 ? [wrongs[Math.floor(Math.random() * wrongs.length)]] : [];
+    list = correct ? [correct, ...oneWrong] : list.slice(0, 2);
   }
-  const sugId = suggest && q.length >= 3 && selItem ? selItem.answerId : null;
+
+  // Auto-suggest: always highlight correct answer after 3 chars (built-in, not a powerup)
+  const sugId = q.length >= 3 && selItem ? selItem.answerId : null;
 
   const go = dbId => { if (!selItem) return; onMatch(selItem.uid, dbId); setQ(''); setOpen(false); setIdx(0); };
   const onKey = e => {
