@@ -20,7 +20,15 @@ export default function useBelts({ frozen, slow, e2, onDrop }) {
         const found = prev.find(i => i.uid === item.uid && i.status === 'active');
         if (!found) return prev;
         if (found.belt < 3) {
-          const next = { ...found, belt: found.belt + 1, beltEntryTime: Date.now() };
+          // Check if next belt already has an active item
+          const nextBelt = found.belt + 1;
+          const nextBeltActive = prev.filter(i => i.belt === nextBelt && i.status === 'active');
+          if (nextBeltActive.length >= 1) {
+            // Wait and retry — reschedule in 500ms
+            setTimeout(() => schedule(found), 500);
+            return prev;
+          }
+          const next = { ...found, belt: nextBelt, beltEntryTime: Date.now() };
           setTimeout(() => schedule(next), 50);
           return prev.map(i => i.uid === item.uid ? next : i);
         }
@@ -32,9 +40,14 @@ export default function useBelts({ frozen, slow, e2, onDrop }) {
   }, [getTime, onDrop]);
 
   const spawn = useCallback((maxDiff = 2) => {
-    const item = pickItem(maxDiff);
-    setItems(prev => [...prev, item]);
-    schedule(item);
+    // Only spawn if belt 1 has no active package already on it
+    setItems(prev => {
+      const belt1Active = prev.filter(i => i.belt === 1 && i.status === 'active');
+      if (belt1Active.length >= 1) return prev; // skip spawn, belt 1 is occupied
+      const item = pickItem(maxDiff);
+      schedule(item);
+      return [...prev, item];
+    });
   }, [schedule]);
 
   const remove = useCallback(uid => {
