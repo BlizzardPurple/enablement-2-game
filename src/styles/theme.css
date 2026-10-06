@@ -1,0 +1,38 @@
+:root {
+  /* Nielsen palette */
+  --n-navy: #00234a;
+  --n-navy-light: #0a3a6b;
+  --n-turquoise: #39c4c3;
+  --n-purple: #782eff;
+  --n-pink: #f40953;
+  --n-orange: #ff9408;
+
+  /* Game UI */
+  --bg-dark: #0b0e1a;
+  --bg-card: #141829;
+  --bg-card-light: #1c2140;
+  --border-glow: rgba(57, 196, 195, 0.3);
+  --text-primary: #e8ecf4;
+  --text-muted: #6b7394;
+  --text-dim: #3d4466;
+
+  /* Conveyor */
+  --belt-bg: #1a1f38;
+  --belt-stripe: #222847;
+  --belt-speed: 8s;
+
+  /* Scoring */
+  --correct: #2ecc71;
+  --wrong: #e74c3c;
+  --streak: #f1c40f;
+
+  /* Typography */
+  --font-game: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'Fira Code', 'JetBrains Mono', monospace;
+
+  /* Layout */
+  --radius: 12px;
+  --radius-sm: 6px;
+  --shadow-glow: 0 0 20px rgba(57, 196, 195, 0.15);
+  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.4);
+}
