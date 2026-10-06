@@ -2,7 +2,7 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { pickItem } from '../data/gameData';
 
 const TRAVEL = { 1: 7000, 2: 6000, 3: 5000 };
-const TRAVEL_E2 = { 1: 3000, 2: 2500, 3: 2000 };
+const TRAVEL_E2 = { 1: 4700, 2: 4000, 3: 3300 };
 const PKG_WIDTH_PCT = 22; // approximate package width as % of belt
 const MIN_GAP_PCT = 5;    // minimum gap between packages
 
@@ -61,15 +61,14 @@ export default function useBelts({ frozen, slow, e2, onDrop }) {
     }, getTime(item.belt));
   }, [getTime, onDrop, hasSpaceAtStart]);
 
-  const spawn = useCallback((maxDiff = 2) => {
+  const spawn = useCallback((maxDiff = 2, elapsed = 0) => {
     setItems(prev => {
-      // Only spawn if there's space at the start of belt 1
       if (!hasSpaceAtStart(1, prev)) return prev;
-      const item = pickItem(maxDiff);
+      const item = pickItem(maxDiff, elapsed, e2);
       schedule(item);
       return [...prev, item];
     });
-  }, [schedule, hasSpaceAtStart]);
+  }, [schedule, hasSpaceAtStart, e2]);
 
   const remove = useCallback(uid => {
     setItems(prev => prev.filter(i => i.uid !== uid));

@@ -71,35 +71,25 @@ export default function useGame() {
     setPu(p);
     float(`⚡ ${p.name}!`, 'pu');
     setBE('powerup'); setBL(getBossLine('powerup'));
-    if (p.id === 'clear') belt.clearAll();
-    if (p.id === 'freeze') { setFrozen(true); setFreezeVfx(true); setTimeout(() => { setFrozen(false); setFreezeVfx(false); }, p.dur); }
     if (p.id === 'slow') { setSlow(true); setTimeout(() => setSlow(false), p.dur); }
-    if (p.id === 'auto') {
-      // auto-match the 2 most endangered
-      const a1 = belt.endangered();
-      if (a1) { belt.setStatus(a1.uid, 'matched'); setScore(s => s + SCORE.BASE); setOk(c => c + 1); float(`+${SCORE.BASE}`, 'correct'); setTimeout(() => belt.remove(a1.uid), 300); }
-      setTimeout(() => {
-        const a2 = belt.endangered();
-        if (a2) { belt.setStatus(a2.uid, 'matched'); setScore(s => s + SCORE.BASE); setOk(c => c + 1); float(`+${SCORE.BASE}`, 'correct'); setTimeout(() => belt.remove(a2.uid), 300); }
-      }, 400);
-    }
     if (p.id === 'time') setBonusTime(b => b + 5000);
     if (p.id === 'shield') { setShielded(true); setTimeout(() => setShielded(false), p.dur); }
-    if (p.id === 'reverse') { setReversed(true); setTimeout(() => setReversed(false), p.dur); }
+    if (p.id === 'bonus') setScore(s => s + 500);
     if (p.dur > 0) setTimeout(() => setPu(null), p.dur);
     else setTimeout(() => setPu(null), 2000);
-  }, [belt, float]);
+  }, [float]);
 
   // Spawn loop
   const startSpawn = useCallback(() => {
     clearInterval(spawnI.current);
     const go = () => {
       if (phaseR.current !== 'PLAYING' && phaseR.current !== 'E2') return;
-      const d = elR.current < 10000 ? 1 : elR.current < 25000 ? 2 : 3;
-      spawnFn.current(d);
+      const el = elR.current;
+      const d = el < 10000 ? 1 : el < 25000 ? 2 : 3;
+      spawnFn.current(d, el);
     };
     go();
-    spawnI.current = setInterval(go, e2R.current ? 1400 : 2200);
+    spawnI.current = setInterval(go, e2R.current ? 1800 : 2200);
   }, []);
 
   // Match

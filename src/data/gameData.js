@@ -85,14 +85,10 @@ export const BELT_ITEMS = [
 ];
 
 export const POWERUPS = [
-  { id:'freeze', name:'Belt Freeze', icon:'❄️', dur:5000 },
-  { id:'suggest', name:'Auto-Suggest', icon:'🔍', dur:12000 },
-  { id:'clear', name:'Clear All', icon:'💨', dur:0 },
-  { id:'slow', name:'Slow Motion', icon:'🐢', dur:5000 },
-  { id:'auto', name:'Auto-Match', icon:'🎯', dur:0 },
-  { id:'time', name:'+5 Seconds', icon:'⏰', dur:0 },
   { id:'shield', name:'Shield', icon:'🛡️', dur:8000 },
-  { id:'reverse', name:'Reverse', icon:'🔄', dur:5000 },
+  { id:'time', name:'+5 Seconds', icon:'⏰', dur:0 },
+  { id:'bonus', name:'+500 Score', icon:'💰', dur:0 },
+  { id:'slow', name:'Slow Motion', icon:'🐢', dur:5000 },
 ];
 
 export const SCORE = {
@@ -101,10 +97,12 @@ export const SCORE = {
 };
 export const POWERUP_CHANCE = 0.2;
 
-export function pickItem(maxDiff=2) {
+export function pickItem(maxDiff=2, elapsed=0, isE2=false) {
   const pool = BELT_ITEMS.filter(i=>i.diff<=maxDiff);
   const pick = pool[Math.floor(Math.random()*pool.length)];
-  const isPU = Math.random() < POWERUP_CHANCE;
+  // No powerups before 10s or during E2
+  const canPU = elapsed >= 10000 && !isE2;
+  const isPU = canPU && Math.random() < POWERUP_CHANCE;
   const pu = isPU ? POWERUPS[Math.floor(Math.random()*POWERUPS.length)] : null;
   return { ...pick, uid:`${Date.now()}-${Math.random().toString(36).slice(2,7)}`, belt:1, spawnTime:Date.now(), beltEntryTime:Date.now(), status:'active', powerup:pu };
 }

@@ -19,7 +19,13 @@ export default function SearchInput({ selItem, onMatch, e2, suggest }) {
   useEffect(() => { if (ddRef.current && open) { const el = ddRef.current.children[idx]; if (el) el.scrollIntoView({ block: 'nearest' }); } }, [idx, open]);
 
   let list = q.length > 0 ? DATABASE.filter(d => d.name.toLowerCase().includes(q.toLowerCase())) : [];
-  if (e2 && selItem) list = [...list].sort((a, b) => (a.id === selItem.answerId ? -1 : b.id === selItem.answerId ? 1 : 0));
+  // E2 mode: only 2 options — correct answer first, then 1 random wrong
+  if (e2 && selItem && list.length > 0) {
+    const correctEntry = list.find(d => d.id === selItem.answerId);
+    const wrongEntries = list.filter(d => d.id !== selItem.answerId);
+    const oneWrong = wrongEntries.length > 0 ? [wrongEntries[Math.floor(Math.random() * wrongEntries.length)]] : [];
+    list = correctEntry ? [correctEntry, ...oneWrong] : list.slice(0, 2);
+  }
   const sugId = suggest && q.length >= 3 && selItem ? selItem.answerId : null;
 
   const go = dbId => { if (!selItem) return; onMatch(selItem.uid, dbId); setQ(''); setOpen(false); setIdx(0); };
