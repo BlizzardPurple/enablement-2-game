@@ -159,9 +159,13 @@ export default function useGame() {
       setBE('e2_activate'); setBL(getBossLine('e2_activate'));
       shake();
       setE2Flash(true);
-      setTimeout(() => setE2Flash(false), 1200);
+      // Brief freeze — pause spawning for 1s so player sees the flash
+      clearInterval(spawnI.current);
+      setTimeout(() => {
+        setE2Flash(false);
+        startSpawn();
+      }, 1000);
       setPhase('E2');
-      startSpawn();
     } else if (elapsed >= totalWithBonus) {
       clearInterval(tick.current);
       clearInterval(spawnI.current);

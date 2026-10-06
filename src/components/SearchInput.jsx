@@ -16,12 +16,22 @@ export default function SearchInput({ selItem, onMatch, e2 }) {
       lastSelUid.current = selItem.uid;
       const correct = DATABASE.find(d => d.id === selItem.answerId);
       if (correct) {
-        // Pre-fill search with most of the correct name
         setQ(correct.name.slice(0, -1));
-        // Build a stable 2-option list: correct + 1 random wrong
-        const allOthers = DATABASE.filter(d => d.id !== selItem.answerId);
-        const randomWrong = allOthers[Math.floor(Math.random() * allOthers.length)];
-        setE2Options(randomWrong ? [correct, randomWrong] : [correct]);
+        // Pick a SIBLING wrong answer — same platform, different region
+        const platform = selItem.answerId.split('-')[0]; // e.g. "spotify" from "spotify-jp"
+        const siblings = DATABASE.filter(d => d.id !== selItem.answerId && d.id.startsWith(platform + '-'));
+        let wrongPick;
+        if (siblings.length > 0) {
+          wrongPick = siblings[Math.floor(Math.random() * siblings.length)];
+        } else {
+          // fallback to any random wrong answer
+          const allOthers = DATABASE.filter(d => d.id !== selItem.answerId);
+          wrongPick = allOthers[Math.floor(Math.random() * allOthers.length)];
+        }
+        // Randomly order them so correct isn't always first
+        const pair = [correct, wrongPick].filter(Boolean);
+        if (Math.random() > 0.5) pair.reverse();
+        setE2Options(pair);
         setOpen(true);
         setIdx(0);
       }
