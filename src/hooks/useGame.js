@@ -27,6 +27,7 @@ export default function useGame() {
   const [floats, setFloats] = useState([]);
   const [shaking, setShaking] = useState(false);
   const [freezeVfx, setFreezeVfx] = useState(false);
+  const [e2Flash, setE2Flash] = useState(false);
   const [bonusTime, setBonusTime] = useState(0);
 
   const t0 = useRef(0);
@@ -152,9 +153,15 @@ export default function useGame() {
     const totalWithBonus = TOTAL + bonusTime;
     if (!e2Done.current && elapsed >= E2_AT && phase === 'PLAYING') {
       e2Done.current = true;
-      clearInterval(spawnI.current);
-      setPhase('E2_ACTIVATE');
+      // No screen change — activate E2 immediately
+      setE2(true); e2R.current = true;
+      belt.clearAll();
+      setBE('e2_activate'); setBL(getBossLine('e2_activate'));
       shake();
+      setE2Flash(true);
+      setTimeout(() => setE2Flash(false), 1200);
+      setPhase('E2');
+      startSpawn();
     } else if (elapsed >= totalWithBonus) {
       clearInterval(tick.current);
       clearInterval(spawnI.current);
@@ -188,7 +195,7 @@ export default function useGame() {
     setScore(0); setStreak(0); setBest(0); setOk(0); setBad(0); setDrops(0); setElapsed(0);
     setFrozen(false); setSlow(false); setReversed(false); setShielded(false);
     setE2(false); e2R.current = false; setPu(null); setSel(null); setFloats([]);
-    setFreezeVfx(false); setBonusTime(0);
+    setFreezeVfx(false); setBonusTime(0); setE2Flash(false);
     e2Done.current = false;
     t0.current = Date.now();
     belt.clearAll();
@@ -205,8 +212,8 @@ export default function useGame() {
   return {
     phase, score, streak, best, ok, bad, drops, elapsed,
     left, leftSec, pct,
-    frozen, slow, reversed, shielded, e2, pu, freezeVfx,
+    frozen, slow, reversed, shielded, e2, pu, freezeVfx, e2Flash,
     sel, setSel, bossLine, bossEvt: bossEvt, floats, shaking,
-    belt, start, match, activateE2, setPhase,
+    belt, start, match, setPhase,
   };
 }
