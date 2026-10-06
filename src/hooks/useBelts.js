@@ -1,74 +1,73 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { pickItem } from '../data/gameData';
 
-const TRAVEL = { 1: 7000, 2: 6000, 3: 5000 };
-const TRAVEL_E2 = { 1: 4700, 2: 4000, 3: 3300 };
-const PKG_WIDTH_PCT = 22; // approximate package width as % of belt
-const MIN_GAP_PCT = 5;    // minimum gap between packages
+/**
+ * Simplified belt system — packages travel along one continuous S-path.
+ * No more belt 1/2/3 transitions. Each package has a spawn time and total
+ * travel duration. When it reaches 100% of the path, it's dropped.
+ *
+ * Collision: packages have a "path %" position. New packages only spawn
+ * if the start of the path is clear.
+ */
+
+const TRAVEL_NORMAL = 18000; // 18s to traverse full S-path
+const TRAVEL_E2 = 12000;     // 1.5x faster
+const TRAVEL_SLOW = 36000;
+const PKG_SIZE_PCT = 8;      // package occupies ~8% of path length
+const MIN_GAP_PCT = 4;
 
 export default function useBelts({ frozen, slow, e2, onDrop }) {
   const [items, setItems] = useState([]);
   const timers = useRef({});
 
-  const getTime = useCallback((b) => {
-    const base = e2 ? TRAVEL_E2[b] : TRAVEL[b];
-    return frozen ? 999999 : slow ? base * 2 : base;
+  const getTravelTime = useCallback(() => {
+    if (frozen) return 999999999;
+    if (slow) return TRAVEL_SLOW;
+    if (e2) return TRAVEL_E2;
+    return TRAVEL_NORMAL;
   }, [frozen, slow, e2]);
 
-  // Get current position (0-100%) of a package on its belt
+  // Get current position (0-100%) of a package on the path
   const getPos = useCallback((item) => {
     if (item.status !== 'active') return -1;
-    const travel = getTime(item.belt);
-    const elapsed = Date.now() - item.beltEntryTime;
+    const travel = getTravelTime();
+    const elapsed = Date.now() - item.spawnTime;
     return Math.min(100, (elapsed / travel) * 100);
-  }, [getTime]);
+  }, [getTravelTime]);
 
-  // Check if there's space at the start of a belt (position ~0%)
-  const hasSpaceAtStart = useCallback((beltNum, currentItems) => {
-    const beltItems = currentItems.filter(i => i.belt === beltNum && i.status === 'active');
-    for (const existing of beltItems) {
+  const hasSpaceAtStart = useCallback((currentItems) => {
+    for (const existing of currentItems) {
+      if (existing.status !== 'active') continue;
       const pos = getPos(existing);
-      // If an existing package is still near the start (within pkg width + gap), no space
-      if (pos >= 0 && pos < PKG_WIDTH_PCT + MIN_GAP_PCT) {
-        return false;
-      }
+      if (pos >= 0 && pos < PKG_SIZE_PCT + MIN_GAP_PCT) return false;
     }
     return true;
   }, [getPos]);
 
+  // Schedule drop timer
   const schedule = useCallback((item) => {
     if (timers.current[item.uid]) clearTimeout(timers.current[item.uid]);
+    const travel = getTravelTime();
     timers.current[item.uid] = setTimeout(() => {
       setItems(prev => {
         const found = prev.find(i => i.uid === item.uid && i.status === 'active');
         if (!found) return prev;
-        if (found.belt < 3) {
-          const nextBelt = found.belt + 1;
-          // Check space at start of next belt
-          if (!hasSpaceAtStart(nextBelt, prev)) {
-            // Retry in 400ms
-            setTimeout(() => schedule(found), 400);
-            return prev;
-          }
-          const next = { ...found, belt: nextBelt, beltEntryTime: Date.now() };
-          setTimeout(() => schedule(next), 50);
-          return prev.map(i => i.uid === item.uid ? next : i);
-        }
         onDrop(found.uid);
         return prev.map(i => i.uid === item.uid ? { ...i, status: 'dropped' } : i);
       });
       delete timers.current[item.uid];
-    }, getTime(item.belt));
-  }, [getTime, onDrop, hasSpaceAtStart]);
+    }, travel);
+  }, [getTravelTime, onDrop]);
 
   const spawn = useCallback((maxDiff = 2, elapsed = 0) => {
     setItems(prev => {
-      if (!hasSpaceAtStart(1, prev)) return prev;
+      if (!hasSpaceAtStart(prev)) return prev;
       const item = pickItem(maxDiff, elapsed, e2);
+      item.travelTime = getTravelTime();
       schedule(item);
       return [...prev, item];
     });
-  }, [schedule, hasSpaceAtStart, e2]);
+  }, [schedule, hasSpaceAtStart, e2, getTravelTime]);
 
   const remove = useCallback(uid => {
     setItems(prev => prev.filter(i => i.uid !== uid));
@@ -77,11 +76,15 @@ export default function useBelts({ frozen, slow, e2, onDrop }) {
 
   const setStatus = useCallback((uid, s) => setItems(prev => prev.map(i => i.uid === uid ? { ...i, status: s } : i)), []);
   const clearAll = useCallback(() => { Object.values(timers.current).forEach(clearTimeout); timers.current = {}; setItems([]); }, []);
-  const byBelt = useCallback(b => items.filter(i => i.belt === b), [items]);
+
+  // Most endangered = furthest along the path
   const endangered = useCallback(() => {
     const active = items.filter(i => i.status === 'active');
-    return active.sort((a, b) => b.belt - a.belt || a.beltEntryTime - b.beltEntryTime)[0] || null;
-  }, [items]);
+    return active.sort((a, b) => getPos(b) - getPos(a))[0] || null;
+  }, [items, getPos]);
+
+  // Keep byBelt for compatibility (estimate belt from position)
+  const byBelt = useCallback(() => items, [items]);
 
   useEffect(() => () => Object.values(timers.current).forEach(clearTimeout), []);
 

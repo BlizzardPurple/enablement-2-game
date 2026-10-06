@@ -27,4 +27,6 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);-webk
 @keyframes spriteHit{from{background-position:0 0}to{background-position:-320px 0}}
 @keyframes spriteDeath{from{background-position:0 0}to{background-position:-640px 0}}
 
+@keyframes followPath{from{offset-distance:0%}to{offset-distance:100%}}
+
 .shake{animation:shake .5s ease-in-out}
