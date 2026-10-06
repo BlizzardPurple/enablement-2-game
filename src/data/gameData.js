@@ -91,10 +91,10 @@ export const BELT_ITEMS = [
 ];
 
 export const POWERUPS = [
-  { id: 'freeze', name: 'Belt Freeze', desc: 'Stops belts for 5s', icon: '❄️', dur: 5000 },
-  { id: 'autosuggest', name: 'Auto-Suggest', desc: 'Highlights correct answer', icon: '🔍', dur: 15000 },
-  { id: 'clear', name: 'Clear All', desc: 'Wipes all belt items', icon: '💨', dur: 0 },
-  { id: 'slowmo', name: 'Slow Motion', desc: 'Half speed for 5s', icon: '🐢', dur: 5000 },
+  { id: 'freeze', name: 'Belt Freeze', icon: '❄️', dur: 5000 },
+  { id: 'autosuggest', name: 'Auto-Suggest', icon: '🔍', dur: 15000 },
+  { id: 'clear', name: 'Clear All', icon: '💨', dur: 0 },
+  { id: 'slowmo', name: 'Slow Motion', icon: '🐢', dur: 5000 },
 ];
 
 export const SCORE = {
@@ -102,12 +102,25 @@ export const SCORE = {
   SPEED_BONUS: 50, SPEED_MS: 2000,
   STREAK_BONUS: 25,
   WRONG: -50, DROP: -75,
-  E2_BASE: 50, // reduced in E2 mode
+  E2_BASE: 50,
+  POWERUP_BONUS: 200,
 };
 
-/** Pick random items from pool */
+/** ~20% chance a spawned item is a powerup package */
+export const POWERUP_CHANCE = 0.18;
+
 export function pickItem(maxDiff = 2) {
   const pool = BELT_ITEMS.filter(i => i.diff <= maxDiff);
   const pick = pool[Math.floor(Math.random() * pool.length)];
-  return { ...pick, uid: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, belt: 1, spawnTime: Date.now(), status: 'active' };
+  const isPowerup = Math.random() < POWERUP_CHANCE;
+  const powerup = isPowerup ? POWERUPS[Math.floor(Math.random() * POWERUPS.length)] : null;
+  return {
+    ...pick,
+    uid: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+    belt: 1,
+    spawnTime: Date.now(),
+    beltEntryTime: Date.now(),
+    status: 'active',
+    powerup,
+  };
 }

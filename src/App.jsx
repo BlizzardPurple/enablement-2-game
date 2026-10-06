@@ -1,7 +1,6 @@
 import useGameEngine from './hooks/useGameEngine';
 import useTheme from './hooks/useTheme';
 import IntroScreen from './pages/IntroScreen';
-import PowerupSelect from './pages/PowerupSelect';
 import E2Activation from './pages/E2Activation';
 import ScoreScreen from './pages/ScoreScreen';
 import BeltSystem from './components/BeltSystem';
@@ -17,10 +16,7 @@ export default function App() {
   const game = useGameEngine();
   const theme = useTheme();
 
-  if (game.phase === 'INTRO') {
-    return <IntroScreen onStart={game.startGame} theme={theme} />;
-  }
-
+  if (game.phase === 'INTRO') return <IntroScreen onStart={game.startGame} theme={theme} />;
   if (game.phase === 'SCORE') {
     return (
       <ScoreScreen
@@ -30,17 +26,31 @@ export default function App() {
       />
     );
   }
+  if (game.phase === 'E2_ACTIVATE') return <E2Activation onActivate={game.activateE2} />;
 
   return (
     <div className={game.shaking ? 'shake' : ''} style={{
       height: '100vh', display: 'flex', flexDirection: 'column',
       padding: '12px 20px', gap: 8, position: 'relative',
-      background: game.e2
-        ? 'radial-gradient(ellipse at 50% 80%, rgba(57,196,195,0.06), transparent 50%), var(--bg)'
-        : 'var(--bg)',
       transition: 'background 0.5s',
     }}>
       <FactoryBG />
+
+      {/* Freeze overlay */}
+      {game.freezeOverlay && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 50, pointerEvents: 'none',
+          background: 'rgba(57, 196, 195, 0.08)',
+          border: '4px solid rgba(57, 196, 195, 0.3)',
+          borderRadius: 0,
+          animation: 'glow 1s ease-in-out infinite',
+        }}>
+          <div style={{
+            position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+            fontSize: '3rem', opacity: 0.3, animation: 'pulse 1s ease-in-out infinite',
+          }}>❄️</div>
+        </div>
+      )}
 
       {/* Top bar */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 10 }}>
@@ -52,13 +62,24 @@ export default function App() {
         <ThemeToggle dark={theme.dark} onToggle={theme.toggle} />
       </div>
 
+      {/* Active powerup banner */}
+      {game.activePowerup && (
+        <div style={{
+          textAlign: 'center', padding: '4px 0', zIndex: 10,
+          fontSize: '0.85rem', fontWeight: 800, color: 'var(--n-orange)',
+          animation: 'popIn 0.3s ease-out',
+        }}>
+          {game.activePowerup.icon} {game.activePowerup.name} Active
+        </div>
+      )}
+
       {/* E2 banner */}
       {game.e2 && (
         <div style={{
-          textAlign: 'center', padding: '4px 0',
-          fontSize: '0.75rem', fontWeight: 800, color: 'var(--n-turquoise)',
+          textAlign: 'center', padding: '4px 0', zIndex: 10,
+          fontSize: '0.8rem', fontWeight: 800, color: 'var(--n-turquoise)',
           letterSpacing: '0.15em', textTransform: 'uppercase',
-          animation: 'glow 2s ease-in-out infinite', zIndex: 10,
+          animation: 'glow 2s ease-in-out infinite',
         }}>
           🚀 ENABLEMENT 2.0 ACTIVE — AI ASSIST ON
         </div>
@@ -86,14 +107,6 @@ export default function App() {
       </div>
 
       <FloatingScores floats={game.floats} />
-
-      {/* Overlays */}
-      {game.phase === 'POWERUP_SELECT' && (
-        <PowerupSelect options={game.powerupOptions} onSelect={game.selectPowerup} />
-      )}
-      {game.phase === 'E2_ACTIVATE' && (
-        <E2Activation onActivate={game.activateE2} />
-      )}
     </div>
   );
 }

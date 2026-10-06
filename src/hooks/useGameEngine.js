@@ -1,11 +1,9 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { SCORE, POWERUPS } from '../data/gameData';
+import { SCORE } from '../data/gameData';
 import { getBossLine } from '../data/bossDialogue';
 import useBeltSystem from './useBeltSystem';
 
 const TOTAL_TIME = 60000;
-const P1_TIME = 10000;
-const P2_TIME = 25000;
 const E2_TIME = 40000;
 
 export default function useGameEngine() {
@@ -21,25 +19,22 @@ export default function useGameEngine() {
   const [slow, setSlow] = useState(false);
   const [e2, setE2] = useState(false);
   const [activePowerup, setActivePowerup] = useState(null);
-  const [powerupOptions, setPowerupOptions] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
   const [bossLine, setBossLine] = useState('');
   const [bossEvent, setBossEvent] = useState('idle');
   const [floats, setFloats] = useState([]);
   const [shaking, setShaking] = useState(false);
+  const [freezeOverlay, setFreezeOverlay] = useState(false);
 
   const startTimeRef = useRef(0);
   const tickRef = useRef(null);
   const spawnRef = useRef(null);
   const bossRef = useRef(null);
-  const p1Fired = useRef(false);
-  const p2Fired = useRef(false);
   const e2Fired = useRef(false);
   const phaseRef = useRef('INTRO');
   const e2Ref = useRef(false);
   const elapsedRef = useRef(0);
 
-  // Keep refs in sync
   useEffect(() => { phaseRef.current = phase; }, [phase]);
   useEffect(() => { e2Ref.current = e2; }, [e2]);
   useEffect(() => { elapsedRef.current = elapsed; }, [elapsed]);
@@ -57,7 +52,6 @@ export default function useGameEngine() {
     },
   });
 
-  // Store belt.spawn in a ref so the interval doesn't need it as a dep
   const spawnFnRef = useRef(belt.spawn);
   useEffect(() => { spawnFnRef.current = belt.spawn; }, [belt.spawn]);
 
@@ -73,16 +67,42 @@ export default function useGameEngine() {
     setTimeout(() => setShaking(false), 500);
   }, []);
 
-  // Spawn loop — uses refs only, no deps on state
+  // Apply a powerup from a matched glowing package
+  const applyPowerup = useCallback((powerup) => {
+    setActivePowerup(powerup);
+    addFloat(`⚡ ${powerup.name}!`, 'powerup');
+    setBossEvent('powerup');
+    setBossLine(getBossLine('powerup'));
+
+    if (powerup.id === 'clear') {
+      belt.clearAll();
+    }
+    if (powerup.id === 'freeze') {
+      setFrozen(true);
+      setFreezeOverlay(true);
+      setTimeout(() => { setFrozen(false); setFreezeOverlay(false); }, powerup.dur);
+    }
+    if (powerup.id === 'slowmo') {
+      setSlow(true);
+      setTimeout(() => setSlow(false), powerup.dur);
+    }
+    // autosuggest handled by SearchInput
+    if (powerup.dur > 0) {
+      setTimeout(() => setActivePowerup(null), powerup.dur);
+    } else {
+      setTimeout(() => setActivePowerup(null), 2000);
+    }
+  }, [belt, addFloat]);
+
   const startSpawnLoop = useCallback(() => {
     clearInterval(spawnRef.current);
     const doSpawn = () => {
       if (phaseRef.current !== 'PLAYING' && phaseRef.current !== 'E2') return;
       const el = elapsedRef.current;
-      const maxDiff = el < P1_TIME ? 1 : el < P2_TIME ? 2 : 3;
+      const maxDiff = el < 10000 ? 1 : el < 25000 ? 2 : 3;
       spawnFnRef.current(maxDiff);
     };
-    doSpawn(); // immediate first spawn
+    doSpawn();
     spawnRef.current = setInterval(doSpawn, e2Ref.current ? 1800 : 2500);
   }, []);
 
@@ -105,6 +125,13 @@ export default function useGameEngine() {
         return ns;
       });
 
+      // Powerup package bonus
+      if (item.powerup) {
+        setScore(s => s + SCORE.POWERUP_BONUS);
+        addFloat(`+${SCORE.POWERUP_BONUS} ⚡`, 'powerup');
+        applyPowerup(item.powerup);
+      }
+
       setCorrect(c => c + 1);
       addFloat(`+${points}`, 'correct');
       belt.setItemStatus(uid, 'matched');
@@ -125,9 +152,9 @@ export default function useGameEngine() {
       setBossLine(getBossLine('wrong'));
     }
     setSelectedItem(null);
-  }, [belt, addFloat, shake]);
+  }, [belt, addFloat, shake, applyPowerup]);
 
-  // Auto-select most endangered item
+  // Auto-select most endangered
   useEffect(() => {
     if (!selectedItem || !belt.items.find(i => i.uid === selectedItem && i.status === 'active')) {
       const endangered = belt.getMostEndangered();
@@ -135,36 +162,17 @@ export default function useGameEngine() {
     }
   }, [belt.items, selectedItem, belt]);
 
-  // Tick — elapsed time
+  // Tick
   useEffect(() => {
     if (phase !== 'PLAYING' && phase !== 'E2') return;
-    tickRef.current = setInterval(() => {
-      setElapsed(Date.now() - startTimeRef.current);
-    }, 100);
+    tickRef.current = setInterval(() => setElapsed(Date.now() - startTimeRef.current), 100);
     return () => clearInterval(tickRef.current);
   }, [phase]);
 
-  // Phase transitions
+  // Phase transitions — only E2 at 40s, and end at 60s
   useEffect(() => {
     if (phase !== 'PLAYING' && phase !== 'E2') return;
-
-    if (!p1Fired.current && elapsed >= P1_TIME && phase === 'PLAYING') {
-      p1Fired.current = true;
-      clearInterval(spawnRef.current);
-      const opts = [...POWERUPS].sort(() => Math.random() - 0.5).slice(0, 2);
-      setPowerupOptions(opts);
-      setPhase('POWERUP_SELECT');
-      setBossEvent('powerup');
-      setBossLine(getBossLine('powerup'));
-    } else if (!p2Fired.current && elapsed >= P2_TIME && phase === 'PLAYING') {
-      p2Fired.current = true;
-      clearInterval(spawnRef.current);
-      const opts = [...POWERUPS].sort(() => Math.random() - 0.5).slice(0, 2);
-      setPowerupOptions(opts);
-      setPhase('POWERUP_SELECT');
-      setBossEvent('powerup');
-      setBossLine(getBossLine('powerup'));
-    } else if (!e2Fired.current && elapsed >= E2_TIME && phase === 'PLAYING') {
+    if (!e2Fired.current && elapsed >= E2_TIME && phase === 'PLAYING') {
       e2Fired.current = true;
       clearInterval(spawnRef.current);
       setPhase('E2_ACTIVATE');
@@ -177,26 +185,16 @@ export default function useGameEngine() {
     }
   }, [elapsed, phase, shake]);
 
-  // Boss idle chatter
+  // Boss chatter
   useEffect(() => {
     if (phase !== 'PLAYING' && phase !== 'E2') return;
     bossRef.current = setInterval(() => {
       const evt = e2 ? 'e2_active' : 'idle';
       setBossEvent(evt);
       setBossLine(getBossLine(evt));
-    }, 6000);
+    }, 5000);
     return () => clearInterval(bossRef.current);
   }, [phase, e2]);
-
-  const selectPowerup = useCallback((powerup) => {
-    setActivePowerup(powerup);
-    if (powerup.id === 'clear') belt.clearAll();
-    if (powerup.id === 'freeze') { setFrozen(true); setTimeout(() => setFrozen(false), powerup.dur); }
-    if (powerup.id === 'slowmo') { setSlow(true); setTimeout(() => setSlow(false), powerup.dur); }
-    setPhase('PLAYING');
-    startTimeRef.current = Date.now() - elapsedRef.current;
-    startSpawnLoop();
-  }, [belt, startSpawnLoop]);
 
   const activateE2 = useCallback(() => {
     setE2(true);
@@ -213,9 +211,10 @@ export default function useGameEngine() {
     setScore(0); setStreak(0); setBestStreak(0); setCorrect(0);
     setWrong(0); setDrops(0); setElapsed(0);
     setFrozen(false); setSlow(false); setE2(false);
+    setFreezeOverlay(false);
     e2Ref.current = false;
     setActivePowerup(null); setSelectedItem(null); setFloats([]);
-    p1Fired.current = false; p2Fired.current = false; e2Fired.current = false;
+    e2Fired.current = false;
     startTimeRef.current = Date.now();
     belt.clearAll();
     setBossEvent('idle');
@@ -231,9 +230,9 @@ export default function useGameEngine() {
   return {
     phase, score, streak, bestStreak, correct, wrong, drops,
     elapsed, timeLeft, timeLeftSec, timePct,
-    frozen, slow, e2, activePowerup, powerupOptions,
+    frozen, slow, e2, activePowerup, freezeOverlay,
     selectedItem, setSelectedItem,
     bossLine, bossEvent, floats, shaking,
-    belt, startGame, handleMatch, selectPowerup, activateE2, setPhase,
+    belt, startGame, handleMatch, activateE2, setPhase,
   };
 }
