@@ -3,6 +3,8 @@ import { pickItem } from '../data/gameData';
 
 const TRAVEL = { 1: 7000, 2: 6000, 3: 5000 };
 const TRAVEL_E2 = { 1: 3000, 2: 2500, 3: 2000 };
+const PKG_WIDTH_PCT = 22; // approximate package width as % of belt
+const MIN_GAP_PCT = 5;    // minimum gap between packages
 
 export default function useBelts({ frozen, slow, e2, onDrop }) {
   const [items, setItems] = useState([]);
@@ -13,6 +15,27 @@ export default function useBelts({ frozen, slow, e2, onDrop }) {
     return frozen ? 999999 : slow ? base * 2 : base;
   }, [frozen, slow, e2]);
 
+  // Get current position (0-100%) of a package on its belt
+  const getPos = useCallback((item) => {
+    if (item.status !== 'active') return -1;
+    const travel = getTime(item.belt);
+    const elapsed = Date.now() - item.beltEntryTime;
+    return Math.min(100, (elapsed / travel) * 100);
+  }, [getTime]);
+
+  // Check if there's space at the start of a belt (position ~0%)
+  const hasSpaceAtStart = useCallback((beltNum, currentItems) => {
+    const beltItems = currentItems.filter(i => i.belt === beltNum && i.status === 'active');
+    for (const existing of beltItems) {
+      const pos = getPos(existing);
+      // If an existing package is still near the start (within pkg width + gap), no space
+      if (pos >= 0 && pos < PKG_WIDTH_PCT + MIN_GAP_PCT) {
+        return false;
+      }
+    }
+    return true;
+  }, [getPos]);
+
   const schedule = useCallback((item) => {
     if (timers.current[item.uid]) clearTimeout(timers.current[item.uid]);
     timers.current[item.uid] = setTimeout(() => {
@@ -20,12 +43,11 @@ export default function useBelts({ frozen, slow, e2, onDrop }) {
         const found = prev.find(i => i.uid === item.uid && i.status === 'active');
         if (!found) return prev;
         if (found.belt < 3) {
-          // Check if next belt already has an active item
           const nextBelt = found.belt + 1;
-          const nextBeltActive = prev.filter(i => i.belt === nextBelt && i.status === 'active');
-          if (nextBeltActive.length >= 1) {
-            // Wait and retry — reschedule in 500ms
-            setTimeout(() => schedule(found), 500);
+          // Check space at start of next belt
+          if (!hasSpaceAtStart(nextBelt, prev)) {
+            // Retry in 400ms
+            setTimeout(() => schedule(found), 400);
             return prev;
           }
           const next = { ...found, belt: nextBelt, beltEntryTime: Date.now() };
@@ -37,18 +59,17 @@ export default function useBelts({ frozen, slow, e2, onDrop }) {
       });
       delete timers.current[item.uid];
     }, getTime(item.belt));
-  }, [getTime, onDrop]);
+  }, [getTime, onDrop, hasSpaceAtStart]);
 
   const spawn = useCallback((maxDiff = 2) => {
-    // Only spawn if belt 1 has no active package already on it
     setItems(prev => {
-      const belt1Active = prev.filter(i => i.belt === 1 && i.status === 'active');
-      if (belt1Active.length >= 1) return prev; // skip spawn, belt 1 is occupied
+      // Only spawn if there's space at the start of belt 1
+      if (!hasSpaceAtStart(1, prev)) return prev;
       const item = pickItem(maxDiff);
       schedule(item);
       return [...prev, item];
     });
-  }, [schedule]);
+  }, [schedule, hasSpaceAtStart]);
 
   const remove = useCallback(uid => {
     setItems(prev => prev.filter(i => i.uid !== uid));
