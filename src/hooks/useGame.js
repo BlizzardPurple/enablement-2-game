@@ -169,6 +169,7 @@ export default function useGame() {
       clearInterval(tick.current);
       clearInterval(spawnI.current);
       clearInterval(bossI.current);
+      belt.clearAll();
       setPhase('SCORE');
     }
   }, [elapsed, phase, shake, bonusTime]);
