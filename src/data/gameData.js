@@ -85,10 +85,10 @@ export const BELT_ITEMS = [
 ];
 
 export const POWERUPS = [
-  { id:'shield', name:'Shield', icon:'🛡️', dur:8000 },
-  { id:'time', name:'+5 Seconds', icon:'⏰', dur:0 },
-  { id:'bonus', name:'+500 Score', icon:'💰', dur:0 },
-  { id:'slow', name:'Slow Motion', icon:'🐢', dur:5000 },
+  { id:'shield', name:'Shield', iconId:'shield', dur:8000 },
+  { id:'time', name:'+5 Seconds', iconId:'time', dur:0 },
+  { id:'bonus', name:'+500 Score', iconId:'bonus', dur:0 },
+  { id:'slow', name:'Slow Motion', iconId:'slow', dur:5000 },
 ];
 
 export const SCORE = {

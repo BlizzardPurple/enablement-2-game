@@ -1,6 +1,7 @@
 import { useRef, useState, useEffect } from 'react';
 import { DB_LOOKUP } from '../data/gameData';
 import WorkerRobots from './WorkerRobots';
+import PuIco from './PowerupIcon';
 
 /**
  * One continuous S-shaped belt. Packages follow the actual SVG path
@@ -122,10 +123,12 @@ function PathPackage({ item, isSel, onSel, e2 }) {
         ...(stStyles[item.status] || {}),
       }}
     >
-      {hasPU && <span style={{ marginRight: 4 }}>{item.powerup.icon}</span>}
+      {hasPU && <span style={{ marginRight: 4 }}><PuIco type={item.powerup.iconId} size={16} /></span>}
       📦 {item.label}
       {hasPU && item.status === 'active' && (
-        <span style={{ display: 'block', fontSize: '10px', color: 'var(--n-orange)', fontWeight: 800, marginTop: 1 }}>⚡ {item.powerup.name}</span>
+        <span style={{ display: 'block', fontSize: '10px', color: 'var(--n-orange)', fontWeight: 800, marginTop: 1, display: 'flex', alignItems: 'center', gap: 3 }}>
+          <PuIco type={item.powerup.iconId} size={10} /> {item.powerup.name}
+        </span>
       )}
       {e2 && item.status === 'active' && (
         <span style={{ display: 'block', fontSize: '10px', color: 'var(--n-turquoise)', fontWeight: 800, marginTop: 1 }}>→ {DB_LOOKUP[item.answerId]}</span>

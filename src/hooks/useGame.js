@@ -28,6 +28,7 @@ export default function useGame() {
   const [shaking, setShaking] = useState(false);
   const [freezeVfx, setFreezeVfx] = useState(false);
   const [e2Flash, setE2Flash] = useState(false);
+  const [puFlash, setPuFlash] = useState(null); // { name, iconId } or null
   const [bonusTime, setBonusTime] = useState(0);
 
   const t0 = useRef(0);
@@ -71,6 +72,8 @@ export default function useGame() {
   const applyPU = useCallback(p => {
     setPu(p);
     float(`⚡ ${p.name}!`, 'pu');
+    setPuFlash({ name: p.name, iconId: p.iconId });
+    setTimeout(() => setPuFlash(null), 1000);
     setBE('powerup'); setBL(getBossLine('powerup'));
     if (p.id === 'slow') { setSlow(true); setTimeout(() => setSlow(false), p.dur); }
     if (p.id === 'time') setBonusTime(b => b + 5000);
@@ -199,7 +202,7 @@ export default function useGame() {
     setScore(0); setStreak(0); setBest(0); setOk(0); setBad(0); setDrops(0); setElapsed(0);
     setFrozen(false); setSlow(false); setReversed(false); setShielded(false);
     setE2(false); e2R.current = false; setPu(null); setSel(null); setFloats([]);
-    setFreezeVfx(false); setBonusTime(0); setE2Flash(false);
+    setFreezeVfx(false); setBonusTime(0); setE2Flash(false); setPuFlash(null);
     e2Done.current = false;
     t0.current = Date.now();
     belt.clearAll();
@@ -216,7 +219,7 @@ export default function useGame() {
   return {
     phase, score, streak, best, ok, bad, drops, elapsed,
     left, leftSec, pct,
-    frozen, slow, reversed, shielded, e2, pu, freezeVfx, e2Flash,
+    frozen, slow, reversed, shielded, e2, pu, freezeVfx, e2Flash, puFlash,
     sel, setSel, bossLine, bossEvt: bossEvt, floats, shaking,
     belt, start, match, setPhase,
   };

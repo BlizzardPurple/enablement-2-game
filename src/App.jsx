@@ -7,6 +7,7 @@ import SearchInput from './components/SearchInput';
 import MicrowaveBoss from './components/MicrowaveBoss';
 import Floats from './components/Floats';
 import FactoryBG from './components/FactoryBG';
+import PowerupIcon from './components/PowerupIcon';
 
 export default function App() {
   const g = useGame();
@@ -26,7 +27,7 @@ export default function App() {
     }}>
       <FactoryBG />
 
-      {/* E2 flash — jumpscare text that appears big then shrinks away */}
+      {/* E2 flash */}
       {g.e2Flash && (
         <div style={{
           position: 'fixed', inset: 0, zIndex: 999,
@@ -41,6 +42,29 @@ export default function App() {
             textAlign: 'center',
           }}>
             ⚡ ENABLEMENT 2.0
+          </div>
+        </div>
+      )}
+
+      {/* Powerup activation flash — smaller, orange */}
+      {g.puFlash && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 998,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          pointerEvents: 'none',
+        }}>
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 12,
+            animation: 'puflash 1s ease-out forwards',
+          }}>
+            <PowerupIcon type={g.puFlash.iconId} size={48} />
+            <span style={{
+              fontSize: 'clamp(1.2rem, 3vw, 2rem)', fontWeight: 800,
+              color: 'var(--n-orange)',
+              textShadow: '0 0 20px rgba(255,148,8,0.4)',
+            }}>
+              {g.puFlash.name}
+            </span>
           </div>
         </div>
       )}
@@ -70,8 +94,8 @@ export default function App() {
       </div>
 
       {g.pu && !g.e2 && (
-        <div style={{ textAlign: 'center', fontSize: '.85rem', fontWeight: 800, color: 'var(--n-orange)', animation: 'pop 0.3s ease-out', zIndex: 10 }}>
-          {g.pu.icon} {g.pu.name} Active
+        <div style={{ textAlign: 'center', fontSize: '.85rem', fontWeight: 800, color: 'var(--n-orange)', animation: 'pop 0.3s ease-out', zIndex: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+          <PowerupIcon type={g.pu.iconId} size={18} /> {g.pu.name} Active
         </div>
       )}
 
