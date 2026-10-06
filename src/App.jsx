@@ -1,137 +1,99 @@
-import useGameState from './hooks/useGameState';
+import useGameEngine from './hooks/useGameEngine';
+import useTheme from './hooks/useTheme';
 import IntroScreen from './pages/IntroScreen';
 import PowerupSelect from './pages/PowerupSelect';
 import E2Activation from './pages/E2Activation';
 import ScoreScreen from './pages/ScoreScreen';
-import ConveyorBelt from './components/ConveyorBelt';
+import BeltSystem from './components/BeltSystem';
 import SearchInput from './components/SearchInput';
-import GameHUD from './components/GameHUD';
-import RobotBot from './components/RobotBot';
+import ScoreDisplay from './components/ScoreDisplay';
+import RobotBoss from './components/RobotBoss';
 import FloatingScores from './components/FloatingScores';
-
-const TUTORIAL_MESSAGES = [
-  'Items slide across the belt. Click one to select it.',
-  'Type in the search box to find the correct database match.',
-  'Use ↑↓ to navigate, Enter to confirm. Don\'t let items fall off!',
-];
+import FactoryBG from './components/FactoryBG';
+import ThemeToggle from './components/ThemeToggle';
+import { getBossEmotion } from './data/bossDialogue';
 
 export default function App() {
-  const game = useGameState();
+  const game = useGameEngine();
+  const theme = useTheme();
 
-  // Intro screen
   if (game.phase === 'INTRO') {
-    return <IntroScreen onStart={game.startGame} />;
+    return <IntroScreen onStart={game.startGame} theme={theme} />;
   }
 
-  // Powerup selection overlay
-  if (game.phase === 'POWERUP_SELECT') {
-    return (
-      <>
-        <GameScreen game={game} />
-        <PowerupSelect options={game.powerupOptions} onSelect={game.selectPowerup} />
-      </>
-    );
-  }
-
-  // E2 activation cinematic
-  if (game.phase === 'E2_ACTIVATE') {
-    return <E2Activation onActivate={game.activateE2} />;
-  }
-
-  // Score screen
   if (game.phase === 'SCORE') {
     return (
       <ScoreScreen
-        score={game.score}
-        correct={game.correct}
-        wrong={game.wrong}
-        drops={game.drops}
-        bestStreak={game.bestStreak}
-        totalTime={game.totalTime}
-        onRestart={() => game.setPhase('INTRO')}
+        score={game.score} correct={game.correct} wrong={game.wrong}
+        drops={game.drops} bestStreak={game.bestStreak}
+        onRestart={() => game.setPhase('INTRO')} theme={theme}
       />
     );
   }
 
-  // Active game phases (TUTORIAL, MANUAL, POWERUP, E2)
-  return <GameScreen game={game} />;
-}
-
-function GameScreen({ game }) {
-  const tutorialMsg = game.phase === 'TUTORIAL'
-    ? TUTORIAL_MESSAGES[Math.min(
-        Math.floor((15000 - game.phaseTimer) / 5000),
-        TUTORIAL_MESSAGES.length - 1
-      )]
-    : null;
-
-  const phaseConfig = {
-    TUTORIAL: { beltSpeed: 12 },
-    MANUAL: { beltSpeed: 8 },
-    POWERUP: { beltSpeed: 6 },
-    E2: { beltSpeed: 5 },
-  }[game.phase] || { beltSpeed: 8 };
-
   return (
-    <div
-      className={game.shaking ? 'screen-shake' : ''}
-      style={{
-        height: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-        padding: '16px 24px',
-        gap: 16,
-        background: game.e2Active
-          ? 'radial-gradient(ellipse at 50% 80%, rgba(57,196,195,0.06), transparent 50%), var(--bg-dark)'
-          : 'var(--bg-dark)',
-        transition: 'background 0.5s',
-      }}
-    >
-      <GameHUD
-        score={game.score}
-        streak={game.streak}
-        phase={game.phase}
-        phaseTimer={game.phaseTimer}
-        activePowerup={game.activePowerup}
-        e2Active={game.e2Active}
-      />
+    <div className={game.shaking ? 'shake' : ''} style={{
+      height: '100vh', display: 'flex', flexDirection: 'column',
+      padding: '12px 20px', gap: 10, position: 'relative',
+      background: game.e2
+        ? 'radial-gradient(ellipse at 50% 80%, rgba(57,196,195,0.06), transparent 50%), var(--bg)'
+        : 'var(--bg)',
+      transition: 'background 0.5s',
+    }}>
+      <FactoryBG />
 
-      {/* Robot tutorial */}
-      {game.phase === 'TUTORIAL' && (
-        <div style={{ padding: '0 4px' }}>
-          <RobotBot message={tutorialMsg} />
+      {/* Top bar */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 10 }}>
+        <RobotBoss emotion={getBossEmotion(game.bossEvent)} line={game.bossLine} />
+        <ScoreDisplay
+          score={game.score} streak={game.streak}
+          timePct={game.timePct} timeLeftSec={game.timeLeftSec} e2={game.e2}
+        />
+        <ThemeToggle dark={theme.dark} onToggle={theme.toggle} />
+      </div>
+
+      {/* E2 banner */}
+      {game.e2 && (
+        <div style={{
+          textAlign: 'center', padding: '4px 0',
+          fontSize: '0.75rem', fontWeight: 800, color: 'var(--n-turquoise)',
+          letterSpacing: '0.15em', textTransform: 'uppercase',
+          animation: 'glow 2s ease-in-out infinite', zIndex: 10,
+        }}>
+          🚀 ENABLEMENT 2.0 ACTIVE — AI ASSIST ON
         </div>
       )}
 
-      {/* Conveyor Belt */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 16 }}>
-        <ConveyorBelt
-          items={game.beltItems}
-          beltSpeed={phaseConfig.beltSpeed}
-          frozen={game.beltFrozen}
-          slow={game.beltSlow}
-          onDrop={game.handleDrop}
-          onSelect={(item) => {}} // Selection happens via first active item
-          activeItemUid={game.activeItem?.uid}
-          e2Active={game.e2Active}
+      {/* Belt system */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', zIndex: 10 }}>
+        <BeltSystem
+          belt={game.belt}
+          selectedUid={game.selectedItem}
+          onSelect={(uid) => game.setSelectedItem(uid)}
+          frozen={game.frozen} slow={game.slow} e2={game.e2}
+          elapsed={game.elapsed}
         />
-
-        {/* Search area */}
-        <div style={{
-          display: 'flex',
-          justifyContent: 'center',
-          padding: '8px 0',
-        }}>
-          <SearchInput
-            activeItem={game.activeItem}
-            onMatch={game.handleMatch}
-            e2Active={game.e2Active}
-            autoSuggest={game.activePowerup?.id === 'autosuggest'}
-          />
-        </div>
       </div>
 
-      <FloatingScores scores={game.floatingScores} />
+      {/* Search */}
+      <div style={{ display: 'flex', justifyContent: 'center', paddingBottom: 8, zIndex: 10 }}>
+        <SearchInput
+          selectedItem={game.belt.items.find(i => i.uid === game.selectedItem)}
+          onMatch={game.handleMatch}
+          e2={game.e2}
+          autoSuggest={game.activePowerup?.id === 'autosuggest'}
+        />
+      </div>
+
+      <FloatingScores floats={game.floats} />
+
+      {/* Overlays */}
+      {game.phase === 'POWERUP_SELECT' && (
+        <PowerupSelect options={game.powerupOptions} onSelect={game.selectPowerup} />
+      )}
+      {game.phase === 'E2_ACTIVATE' && (
+        <E2Activation onActivate={game.activateE2} />
+      )}
     </div>
   );
 }

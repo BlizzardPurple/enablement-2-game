@@ -1,72 +1,50 @@
-export default function IntroScreen({ onStart }) {
+import ThemeToggle from '../components/ThemeToggle';
+
+export default function IntroScreen({ onStart, theme }) {
   return (
     <div style={{
-      height: '100vh',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      textAlign: 'center',
-      padding: '2rem',
-      background: 'radial-gradient(ellipse at 50% 30%, rgba(57,196,195,0.08), transparent 60%), var(--bg-dark)',
+      height: '100vh', display: 'flex', flexDirection: 'column',
+      alignItems: 'center', justifyContent: 'center', textAlign: 'center',
+      padding: '2rem', position: 'relative',
+      background: 'radial-gradient(ellipse at 50% 30%, var(--glow), transparent 60%), var(--bg)',
     }}>
+      <div style={{ position: 'absolute', top: 16, right: 16 }}>
+        <ThemeToggle dark={theme.dark} onToggle={theme.toggle} />
+      </div>
+
       <img
-        src="/assets/kenney/robot-pack/Side view/robot_blueBody.png"
-        alt="Bot"
-        style={{ width: 96, height: 96, marginBottom: '1.5rem', animation: 'float 2s ease-in-out infinite' }}
+        src="/assets/kenney/robot-pack/Side view/robot_redBody.png" alt=""
+        style={{ width: 80, animation: 'float 2s ease-in-out infinite', marginBottom: '1rem' }}
       />
 
-      <h1 style={{
-        fontSize: 'clamp(2rem, 5vw, 3.5rem)',
-        fontWeight: 900,
-        lineHeight: 1.1,
-        marginBottom: '0.5rem',
-      }}>
+      <h1 style={{ fontSize: 'clamp(2.5rem, 6vw, 4rem)', fontWeight: 900, lineHeight: 1.1, marginBottom: '0.4rem' }}>
         <span style={{ color: 'var(--n-turquoise)' }}>Campaign</span>{' '}
         <span style={{ color: 'var(--n-purple)' }}>Chaos</span>
       </h1>
 
-      <p style={{
-        color: 'var(--text-muted)',
-        fontSize: '1rem',
-        maxWidth: 420,
-        marginBottom: '2rem',
-        lineHeight: 1.6,
-      }}>
-        Match messy placement labels to the correct database entries before they fall off the conveyor belt.
+      <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', maxWidth: 440, marginBottom: '2rem', lineHeight: 1.6 }}>
+        Match messy placement labels to database entries. Don't let packages fall off!
       </p>
 
       <button
         onClick={onStart}
         style={{
-          padding: '14px 48px',
-          fontSize: '1.1rem',
-          fontWeight: 700,
-          fontFamily: 'var(--font-game)',
-          color: '#fff',
-          background: 'linear-gradient(135deg, var(--n-turquoise), var(--n-purple))',
-          border: 'none',
-          borderRadius: 'var(--radius)',
-          cursor: 'pointer',
-          transition: 'transform 0.15s, box-shadow 0.15s',
-          boxShadow: '0 4px 20px rgba(57, 196, 195, 0.3)',
+          padding: '16px 56px', fontSize: '1.2rem', fontWeight: 800,
+          color: '#fff', background: 'linear-gradient(135deg, var(--n-turquoise), var(--n-purple))',
+          border: 'none', borderRadius: 12, cursor: 'pointer',
+          boxShadow: '0 4px 24px var(--glow)',
+          transition: 'transform 0.15s',
         }}
-        onMouseOver={(e) => { e.target.style.transform = 'scale(1.05)'; }}
-        onMouseOut={(e) => { e.target.style.transform = 'scale(1)'; }}
+        onMouseOver={e => e.target.style.transform = 'scale(1.06)'}
+        onMouseOut={e => e.target.style.transform = 'scale(1)'}
       >
         Start Game
       </button>
 
-      <div style={{
-        marginTop: '2.5rem',
-        display: 'flex',
-        gap: '2rem',
-        color: 'var(--text-dim)',
-        fontSize: '0.75rem',
-      }}>
+      <div style={{ marginTop: '2rem', display: 'flex', gap: '1.5rem', color: 'var(--text-dim)', fontSize: '0.8rem' }}>
         <span>⌨️ Type to search</span>
         <span>↑↓ Navigate</span>
-        <span>↵ Confirm match</span>
+        <span>↵ Confirm</span>
       </div>
     </div>
   );

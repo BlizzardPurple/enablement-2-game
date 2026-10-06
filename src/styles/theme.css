@@ -1,38 +1,35 @@
-:root {
-  /* Nielsen palette */
+:root, [data-theme="dark"] {
   --n-navy: #00234a;
-  --n-navy-light: #0a3a6b;
   --n-turquoise: #39c4c3;
   --n-purple: #782eff;
   --n-pink: #f40953;
   --n-orange: #ff9408;
-
-  /* Game UI */
-  --bg-dark: #0b0e1a;
+  --bg: #0b0e1a;
   --bg-card: #141829;
-  --bg-card-light: #1c2140;
-  --border-glow: rgba(57, 196, 195, 0.3);
-  --text-primary: #e8ecf4;
+  --bg-card2: #1c2140;
+  --bg-belt: #1a1f38;
+  --belt-stripe: #252b4a;
+  --text: #e8ecf4;
   --text-muted: #6b7394;
   --text-dim: #3d4466;
-
-  /* Conveyor */
-  --belt-bg: #1a1f38;
-  --belt-stripe: #222847;
-  --belt-speed: 8s;
-
-  /* Scoring */
   --correct: #2ecc71;
   --wrong: #e74c3c;
   --streak: #f1c40f;
+  --border: rgba(255,255,255,0.08);
+  --glow: rgba(57,196,195,0.25);
+  --shadow: 0 4px 24px rgba(0,0,0,0.5);
+}
 
-  /* Typography */
-  --font-game: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-mono: 'Fira Code', 'JetBrains Mono', monospace;
-
-  /* Layout */
-  --radius: 12px;
-  --radius-sm: 6px;
-  --shadow-glow: 0 0 20px rgba(57, 196, 195, 0.15);
-  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.4);
+[data-theme="light"] {
+  --bg: #f0f2f8;
+  --bg-card: #ffffff;
+  --bg-card2: #eef1f8;
+  --bg-belt: #d8dce8;
+  --belt-stripe: #c5cad8;
+  --text: #1a1a2e;
+  --text-muted: #5a6078;
+  --text-dim: #9098b0;
+  --border: rgba(0,0,0,0.08);
+  --glow: rgba(57,196,195,0.3);
+  --shadow: 0 4px 24px rgba(0,0,0,0.1);
 }
