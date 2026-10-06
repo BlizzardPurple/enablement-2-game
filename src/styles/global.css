@@ -18,8 +18,12 @@ body {
 @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
 @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.06)} }
 @keyframes scoreFloat { 0%{opacity:1;transform:translateY(0) scale(1)} 100%{opacity:0;transform:translateY(-50px) scale(1.4)} }
-@keyframes slideL { from{transform:translateX(calc(100% + 40px))} to{transform:translateX(calc(-100% - 40px))} }
-@keyframes slideR { from{transform:translateX(calc(-100% - 40px))} to{transform:translateX(calc(100% + 40px))} }
+@keyframes slideL { from{transform:translateY(-50%) translateX(0)} to{transform:translateY(-50%) translateX(calc(100vw + 200px))} }
+@keyframes slideR { from{transform:translateY(-50%) translateX(0)} to{transform:translateY(-50%) translateX(calc(-100vw - 200px))} }
+
+/* Package animations: always start from belt start edge, travel to the opposite end */
+@keyframes pkgLTR { from{transform:translateY(-50%) translateX(-20px)} to{transform:translateY(-50%) translateX(calc(100vw))} }
+@keyframes pkgRTL { from{transform:translateY(-50%) translateX(20px)} to{transform:translateY(-50%) translateX(calc(-100vw))} }
 @keyframes popIn { 0%{opacity:0;transform:scale(0.5)} 50%{transform:scale(1.15)} 100%{opacity:1;transform:scale(1)} }
 @keyframes explode { 0%{opacity:1;transform:scale(1)} 100%{opacity:0;transform:scale(2.5)} }
 @keyframes glow { 0%,100%{box-shadow:0 0 8px var(--glow)} 50%{box-shadow:0 0 28px var(--glow),0 0 56px rgba(57,196,195,0.1)} }

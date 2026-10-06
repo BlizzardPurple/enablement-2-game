@@ -34,7 +34,7 @@ export default function App() {
   return (
     <div className={game.shaking ? 'shake' : ''} style={{
       height: '100vh', display: 'flex', flexDirection: 'column',
-      padding: '12px 20px', gap: 10, position: 'relative',
+      padding: '12px 20px', gap: 8, position: 'relative',
       background: game.e2
         ? 'radial-gradient(ellipse at 50% 80%, rgba(57,196,195,0.06), transparent 50%), var(--bg)'
         : 'var(--bg)',
@@ -76,7 +76,7 @@ export default function App() {
       </div>
 
       {/* Search */}
-      <div style={{ display: 'flex', justifyContent: 'center', paddingBottom: 8, zIndex: 10 }}>
+      <div style={{ display: 'flex', justifyContent: 'center', paddingBottom: 12, zIndex: 10 }}>
         <SearchInput
           selectedItem={game.belt.items.find(i => i.uid === game.selectedItem)}
           onMatch={game.handleMatch}
