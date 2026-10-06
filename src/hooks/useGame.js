@@ -4,7 +4,7 @@ import { getBossLine } from '../data/bossDialogue';
 import useBelts from './useBelts';
 
 const TOTAL = 60000;
-const E2_AT = 40000;
+const E2_AT = 45000;
 
 export default function useGame() {
   const [phase, setPhase] = useState('INTRO'); // INTRO|PLAYING|E2_ACTIVATE|E2|SCORE
@@ -141,7 +141,7 @@ export default function useGame() {
 
   // Tick
   useEffect(() => {
-    if (phase !== 'PLAYING' && phase !== 'E2') return;
+    if (phase !== 'PLAYING' && phase !== 'E2' && phase !== 'E2_ACTIVATE') return;
     tick.current = setInterval(() => setElapsed(Date.now() - t0.current), 100);
     return () => clearInterval(tick.current);
   }, [phase]);
