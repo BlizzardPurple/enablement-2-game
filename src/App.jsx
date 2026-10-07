@@ -14,7 +14,7 @@ export default function App() {
   const theme = useTheme();
 
   if (g.phase === 'INTRO') return <IntroScreen onStart={g.start} theme={theme} />;
-  if (g.phase === 'SCORE') return <ScoreScreen score={g.score} ok={g.ok} bad={g.bad} drops={g.drops} best={g.best} onAgain={() => g.setPhase('INTRO')} theme={theme} />;
+  if (g.phase === 'SCORE') return <ScoreScreen score={g.score} oldScore={g.oldScore} newScore={g.newScore} onAgain={() => g.setPhase('INTRO')} theme={theme} />;
 
   const perf = g.streak >= 3 ? 'good' : g.drops > 2 ? 'bad' : 'ok';
 

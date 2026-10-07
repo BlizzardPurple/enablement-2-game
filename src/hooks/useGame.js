@@ -4,7 +4,7 @@ import { getBossLine } from '../data/bossDialogue';
 import useBelts from './useBelts';
 
 const TOTAL = 60000;
-const E2_AT = 45000;
+const E2_AT = 40000;
 
 export default function useGame() {
   const [phase, setPhase] = useState('INTRO'); // INTRO|PLAYING|E2_ACTIVATE|E2|SCORE
@@ -30,7 +30,9 @@ export default function useGame() {
   const [e2Flash, setE2Flash] = useState(false);
   const [puFlash, setPuFlash] = useState(null); // { name, iconId } or null
   const [bonusTime, setBonusTime] = useState(0);
-  const [diffMult, setDiffMult] = useState(1); // dynamic difficulty multiplier
+  const [diffMult, setDiffMult] = useState(1);
+  const [oldScore, setOldScore] = useState(0); // manual phase score
+  const [newScore, setNewScore] = useState(0); // E2 phase score (before doubling)
 
   const t0 = useRef(0);
   const tick = useRef(null);
@@ -45,8 +47,11 @@ export default function useGame() {
   useEffect(() => { e2R.current = e2; }, [e2]);
   useEffect(() => { elR.current = elapsed; }, [elapsed]);
 
+  // Belt speed: starts at 0.75x, scales to 1x with score, E2 is 1.5x
+  const beltSpeed = e2 ? 1.5 : 0.75 + Math.min(score / 3000, 0.25);
+
   const belt = useBelts({
-    frozen, slow, e2, diffMultiplier: diffMult,
+    frozen, slow, e2, diffMultiplier: diffMult * beltSpeed,
     onDrop: uid => {
       setDrops(d => d + 1);
       if (!e2R.current) setScore(s => Math.max(0, s + SCORE.DROP));
@@ -104,15 +109,24 @@ export default function useGame() {
     if (item.answerId === dbId) {
       const pts = e2R.current ? SCORE.E2_BASE : SCORE.BASE;
       const fast = (Date.now() - item.beltEntryTime) < SCORE.SPEED_MS;
+      const streakMult = e2R.current ? SCORE.STREAK * 2 : SCORE.STREAK; // 2x streak in E2
       let total = pts + (fast ? SCORE.SPEED : 0);
       setStreak(prev => {
         const ns = prev + 1;
-        total += ns * SCORE.STREAK;
+        total += ns * streakMult;
         setScore(s => s + total);
+        // Track split scores
+        if (e2R.current) setNewScore(s => s + total);
+        else setOldScore(s => s + total);
         setBest(b => Math.max(b, ns));
         return ns;
       });
-      if (item.powerup && !e2R.current) { setScore(s => s + SCORE.POWERUP); float(`+${SCORE.POWERUP} ⚡`, 'pu'); applyPU(item.powerup); }
+      if (item.powerup && !e2R.current) {
+        setScore(s => s + SCORE.POWERUP);
+        setOldScore(s => s + SCORE.POWERUP);
+        float(`+${SCORE.POWERUP} ⚡`, 'pu');
+        applyPU(item.powerup);
+      }
       setOk(c => c + 1);
       float(`+${total}`, 'correct');
       belt.setStatus(uid, 'matched');
@@ -121,6 +135,7 @@ export default function useGame() {
     } else {
       if (!e2R.current && !shielded) {
         setScore(s => Math.max(0, s + SCORE.WRONG));
+        setOldScore(s => s + SCORE.WRONG);
         float(SCORE.WRONG, 'wrong');
       } else if (shielded) {
         float('🛡️ Blocked!', 'pu');
@@ -160,6 +175,8 @@ export default function useGame() {
       // No screen change — activate E2 immediately
       setE2(true); e2R.current = true;
       belt.clearAll();
+      // Clear all active powerup effects
+      setPu(null); setSlow(false); setShielded(false); setFreezeVfx(false); setFrozen(false);
       setBE('e2_activate'); setBL(getBossLine('e2_activate'));
       shake();
       setE2Flash(true);
@@ -226,6 +243,7 @@ export default function useGame() {
     setFrozen(false); setSlow(false); setReversed(false); setShielded(false);
     setE2(false); e2R.current = false; setPu(null); setSel(null); setFloats([]);
     setFreezeVfx(false); setBonusTime(0); setE2Flash(false); setPuFlash(null); setDiffMult(1);
+    setOldScore(0); setNewScore(0);
     e2Done.current = false;
     t0.current = Date.now();
     belt.clearAll();
@@ -244,6 +262,6 @@ export default function useGame() {
     left, leftSec, pct,
     frozen, slow, reversed, shielded, e2, pu, freezeVfx, e2Flash, puFlash,
     sel, setSel, bossLine, bossEvt: bossEvt, floats, shaking,
-    belt, start, match, setPhase,
+    belt, start, match, setPhase, oldScore, newScore,
   };
 }
