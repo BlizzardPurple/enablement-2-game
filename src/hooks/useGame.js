@@ -19,6 +19,7 @@ export default function useGame() {
   const [slow, setSlow] = useState(false);
   const [reversed, setReversed] = useState(false);
   const [shielded, setShielded] = useState(false);
+  const [doubleScore, setDoubleScore] = useState(false);
   const [e2, setE2] = useState(false);
   const [pu, setPu] = useState(null); // active powerup
   const [sel, setSel] = useState(null);
@@ -84,6 +85,7 @@ export default function useGame() {
     if (p.id === 'slow') { setSlow(true); setTimeout(() => setSlow(false), p.dur); }
     if (p.id === 'time') setBonusTime(b => b + 5000);
     if (p.id === 'shield') { setShielded(true); setTimeout(() => setShielded(false), p.dur); }
+    if (p.id === 'double') { setDoubleScore(true); setTimeout(() => setDoubleScore(false), p.dur); }
     if (p.id === 'bonus') setScore(s => s + 500);
     if (p.dur > 0) setTimeout(() => setPu(null), p.dur);
     else setTimeout(() => setPu(null), 2000);
@@ -109,15 +111,17 @@ export default function useGame() {
     if (item.answerId === dbId) {
       const pts = e2R.current ? SCORE.E2_BASE : SCORE.BASE;
       const fast = (Date.now() - item.beltEntryTime) < SCORE.SPEED_MS;
-      const streakMult = e2R.current ? SCORE.STREAK * 2 : SCORE.STREAK; // 2x streak in E2
+      const streakMult = e2R.current ? SCORE.STREAK * 2 : SCORE.STREAK;
       let total = pts + (fast ? SCORE.SPEED : 0);
       setStreak(prev => {
         const ns = prev + 1;
         total += ns * streakMult;
-        setScore(s => s + total);
-        // Track split scores
-        if (e2R.current) setNewScore(s => s + total);
-        else setOldScore(s => s + total);
+        // 2× multiplier: during E2 (permanent time bonus) or during double powerup
+        const mult = (e2R.current ? 2 : 1) * (doubleScore ? 2 : 1);
+        const finalTotal = total * mult;
+        setScore(s => s + finalTotal);
+        if (e2R.current) setNewScore(s => s + finalTotal);
+        else setOldScore(s => s + finalTotal);
         setBest(b => Math.max(b, ns));
         return ns;
       });
@@ -176,7 +180,7 @@ export default function useGame() {
       setE2(true); e2R.current = true;
       belt.clearAll();
       // Clear all active powerup effects
-      setPu(null); setSlow(false); setShielded(false); setFreezeVfx(false); setFrozen(false);
+      setPu(null); setSlow(false); setShielded(false); setFreezeVfx(false); setFrozen(false); setDoubleScore(false);
       setBE('e2_activate'); setBL(getBossLine('e2_activate'));
       shake();
       setE2Flash(true);
@@ -240,7 +244,7 @@ export default function useGame() {
 
   const start = useCallback(() => {
     setScore(0); setStreak(0); setBest(0); setOk(0); setBad(0); setDrops(0); setElapsed(0);
-    setFrozen(false); setSlow(false); setReversed(false); setShielded(false);
+    setFrozen(false); setSlow(false); setReversed(false); setShielded(false); setDoubleScore(false);
     setE2(false); e2R.current = false; setPu(null); setSel(null); setFloats([]);
     setFreezeVfx(false); setBonusTime(0); setE2Flash(false); setPuFlash(null); setDiffMult(1);
     setOldScore(0); setNewScore(0);
@@ -260,7 +264,7 @@ export default function useGame() {
   return {
     phase, score, streak, best, ok, bad, drops, elapsed,
     left, leftSec, pct,
-    frozen, slow, reversed, shielded, e2, pu, freezeVfx, e2Flash, puFlash,
+    frozen, slow, reversed, shielded, e2, pu, freezeVfx, e2Flash, puFlash, doubleScore,
     sel, setSel, bossLine, bossEvt: bossEvt, floats, shaking,
     belt, start, match, setPhase, oldScore, newScore,
   };

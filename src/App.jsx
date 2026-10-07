@@ -79,7 +79,17 @@ export default function App() {
               color: g.e2 ? 'var(--n-turquoise)' : 'var(--text)',
               textShadow: g.e2 ? '0 0 24px rgba(57,196,195,0.5)' : 'none',
             }}>{g.score.toLocaleString()}</div>
-            {g.streak > 1 && <div style={{ fontSize: '.9rem', fontWeight: 800, color: 'var(--streak)' }}>🔥 {g.streak}×</div>}
+            {g.e2 && (
+              <div style={{ fontSize: '.7rem', fontWeight: 800, color: 'var(--n-turquoise)', background: 'rgba(57,196,195,0.12)', padding: '2px 8px', borderRadius: 6, marginTop: 3, display: 'inline-block' }}>
+                2× TIME BONUS
+              </div>
+            )}
+            {g.doubleScore && !g.e2 && (
+              <div style={{ fontSize: '.7rem', fontWeight: 800, color: 'var(--n-orange)', background: 'rgba(255,148,8,0.12)', padding: '2px 8px', borderRadius: 6, marginTop: 3, display: 'inline-block' }}>
+                2× SCORE
+              </div>
+            )}
+            {g.streak > 1 && <div style={{ fontSize: '.9rem', fontWeight: 800, color: 'var(--streak)', marginTop: 2 }}>🔥 {g.streak}×</div>}
           </div>
           <div style={{ width: 180 }}>
             <div style={{ height: 10, background: 'var(--bg2)', borderRadius: 5, overflow: 'hidden' }}>

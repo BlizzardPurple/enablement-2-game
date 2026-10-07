@@ -10,8 +10,8 @@ export default function ScoreScreen({ score, oldScore, newScore, onAgain, theme 
   const [saved, setSaved] = useState(false);
   const [lb, setLb] = useState(getLB());
 
-  // newScore doubled (E2 time was half)
-  const boostedNew = Math.max(1, newScore * 2);
+  // Scores already include 2x during E2 — just display them
+  const boostedNew = Math.max(1, newScore);
   const safeOld = Math.max(1, oldScore);
   const multiplier = (boostedNew / safeOld).toFixed(1);
 
@@ -83,7 +83,7 @@ export default function ScoreScreen({ score, oldScore, newScore, onAgain, theme 
           }}>
             {boostedNew.toLocaleString()}
           </div>
-          <div style={{ fontSize: '0.8rem', color: 'var(--text2)', marginTop: '0.3rem' }}>AI Assist (20s) × 2</div>
+          <div style={{ fontSize: '0.8rem', color: 'var(--text2)', marginTop: '0.3rem' }}>AI Assist (20s)</div>
         </div>
       </div>
 

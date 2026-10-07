@@ -89,6 +89,7 @@ export const POWERUPS = [
   { id:'time', name:'+5 Seconds', iconId:'time', dur:0 },
   { id:'bonus', name:'+500 Score', iconId:'bonus', dur:0 },
   { id:'slow', name:'Slow Motion', iconId:'slow', dur:5000 },
+  { id:'double', name:'2× Score', iconId:'bonus', dur:5000 },
 ];
 
 export const SCORE = {
