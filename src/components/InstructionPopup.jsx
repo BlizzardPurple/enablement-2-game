@@ -6,12 +6,13 @@ export default function InstructionPopup({ onClose }) {
       position: 'fixed', inset: 0, zIndex: 1000,
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(6px)',
+      padding: '1rem',
     }}>
       <div style={{
         background: 'var(--bg2)', border: '1px solid var(--border)',
-        borderRadius: 16, padding: '2rem 2.5rem', maxWidth: 520, width: '90%',
+        borderRadius: 16, padding: '2rem 2.5rem', maxWidth: 480, width: '100%',
         boxShadow: '0 8px 40px rgba(0,0,0,0.5)',
-        position: 'relative',
+        margin: '0 auto',
       }}>
         {/* Boss image */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: '1.5rem' }}>
@@ -57,21 +58,7 @@ export default function InstructionPopup({ onClose }) {
         </div>
 
         {/* E2 callout */}
-        <div style={{
-          marginTop: '0.75rem', padding: '12px 14px',
-          background: 'rgba(57,196,195,0.08)', border: '1px solid rgba(57,196,195,0.2)',
-          borderRadius: 10, display: 'flex', alignItems: 'center', gap: 10,
-        }}>
-          <span style={{ fontSize: '1.2rem' }}>🚀</span>
-          <div>
-            <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--n-turquoise)' }}>
-              Enablement 2.0 — 2× Score Multiplier
-            </div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--text2)', marginTop: 2 }}>
-              At 40s, AI kicks in. Scores double automatically.
-            </div>
-          </div>
-        </div>
+        {/* Removed — don't reveal the E2 multiplier upfront */}
 
         {/* Start button */}
         <button onClick={onClose} style={{

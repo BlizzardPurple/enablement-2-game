@@ -4,7 +4,7 @@ const KEY = 'cc-lb';
 const getLB = () => { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch { return []; } };
 const saveLB = (n, s) => { const lb = getLB(); lb.push({ name: n, score: s, d: new Date().toLocaleDateString() }); lb.sort((a, b) => b.score - a.score); localStorage.setItem(KEY, JSON.stringify(lb.slice(0, 10))); };
 
-export default function ScoreScreen({ score, oldScore, newScore, onAgain, theme }) {
+export default function ScoreScreen({ score, oldScore, newScore, onAgain, onHome, theme }) {
   const [step, setStep] = useState(0); // 0=old, 1=new, 2=multiplier, 3=name
   const [name, setName] = useState('');
   const [saved, setSaved] = useState(false);
@@ -140,6 +140,11 @@ export default function ScoreScreen({ score, oldScore, newScore, onAgain, theme 
               border: 'none', borderRadius: 10, cursor: 'pointer', fontFamily: 'inherit',
               boxShadow: '0 4px 20px var(--glow)',
             }}>Play Again</button>
+            <button onClick={onHome} style={{
+              marginLeft: 12, padding: '14px 24px', fontWeight: 700, fontSize: '1rem',
+              color: 'var(--text2)', background: 'var(--bg3)',
+              border: '1px solid var(--border)', borderRadius: 10, cursor: 'pointer', fontFamily: 'inherit',
+            }}>🏠 Home</button>
 
             {/* Mini leaderboard */}
             <div style={{ marginTop: '1.5rem' }}>
