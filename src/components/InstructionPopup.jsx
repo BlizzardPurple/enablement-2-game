@@ -15,12 +15,12 @@ export default function InstructionPopup({ onClose }) {
         margin: '0 auto',
       }}>
         {/* Boss image */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: '1.5rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: '1.5rem', justifyContent: 'center' }}>
           <img
             src="/assets/kenney/robot-pack/Side view/robot_redBody.png"
             alt="Boss" style={{ width: 56, height: 56 }}
           />
-          <div>
+          <div style={{ textAlign: 'left' }}>
             <h2 style={{ fontSize: '1.4rem', fontWeight: 900, margin: 0, color: 'var(--text)' }}>
               How to Play
             </h2>
@@ -31,7 +31,7 @@ export default function InstructionPopup({ onClose }) {
         </div>
 
         {/* Instructions */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14, alignItems: 'center' }}>
           <Step num="1" title="Read the label" desc="Messy package labels appear on the conveyor belt" />
           <Step num="2" title="Type to search" desc="Start typing the correct site name in the search box" />
           <Step num="3" title="Select the match" desc="Pick the right option from the dropdown, then press Enter" />
@@ -41,7 +41,7 @@ export default function InstructionPopup({ onClose }) {
         <div style={{
           marginTop: '1.25rem', padding: '12px 14px',
           background: 'rgba(255,148,8,0.08)', border: '1px solid rgba(255,148,8,0.2)',
-          borderRadius: 10, display: 'flex', alignItems: 'center', gap: 10,
+          borderRadius: 10, display: 'flex', alignItems: 'center', gap: 10, justifyContent: 'center',
         }}>
           <span style={{ fontSize: '1.2rem' }}>⚡</span>
           <div>
@@ -82,14 +82,14 @@ export default function InstructionPopup({ onClose }) {
 
 function Step({ num, title, desc }) {
   return (
-    <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+    <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', maxWidth: 340 }}>
       <div style={{
         width: 28, height: 28, borderRadius: '50%', flexShrink: 0,
         background: 'linear-gradient(135deg, var(--n-turquoise), var(--n-purple))',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         fontSize: '0.8rem', fontWeight: 800, color: '#fff',
       }}>{num}</div>
-      <div>
+      <div style={{ textAlign: 'left' }}>
         <div style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--text)' }}>{title}</div>
         <div style={{ fontSize: '0.8rem', color: 'var(--text2)', marginTop: 1 }}>{desc}</div>
       </div>

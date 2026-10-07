@@ -8,13 +8,15 @@ import MicrowaveBoss from './components/MicrowaveBoss';
 import Floats from './components/Floats';
 import FactoryBG from './components/FactoryBG';
 import PowerupIcon from './components/PowerupIcon';
+import InstructionPopup from './components/InstructionPopup';
 
 export default function App() {
   const g = useGame();
   const theme = useTheme();
 
   if (g.phase === 'INTRO') return <IntroScreen onStart={g.start} theme={theme} />;
-  if (g.phase === 'SCORE') return <ScoreScreen score={g.score} oldScore={g.oldScore} newScore={g.newScore} onAgain={() => g.setPhase('INTRO')} onHome={() => g.setPhase('INTRO')} theme={theme} />;
+  if (g.phase === 'INSTRUCTIONS') return <InstructionPopup onClose={g.start} />;
+  if (g.phase === 'SCORE') return <ScoreScreen score={g.score} oldScore={g.oldScore} newScore={g.newScore} onAgain={() => g.setPhase('INSTRUCTIONS')} onHome={() => g.setPhase('INTRO')} theme={theme} />;
 
   const perf = g.streak >= 3 ? 'good' : g.drops > 2 ? 'bad' : 'ok';
 
