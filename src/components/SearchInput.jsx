@@ -62,6 +62,15 @@ export default function SearchInput({ selItem, onMatch, e2 }) {
   // Auto-suggest: always highlight correct answer after 3 chars
   const sugId = q.length >= 3 && selItem ? selItem.answerId : null;
 
+  // Auto-submit: if user typed the exact full name, submit immediately
+  useEffect(() => {
+    if (!selItem || e2) return;
+    const exactMatch = DATABASE.find(d => d.name.toLowerCase() === q.trim().toLowerCase());
+    if (exactMatch) {
+      go(exactMatch.id);
+    }
+  }, [q, selItem, e2]);
+
   const go = dbId => {
     if (!selItem) return;
     onMatch(selItem.uid, dbId);

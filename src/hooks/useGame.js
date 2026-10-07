@@ -212,9 +212,9 @@ export default function useGame() {
     else if (ratio < 0.4 || drops > 4) setDiffMult(m => Math.max(0.6, m - 0.05));
   }, [Math.floor(elapsed / 5000)]); // re-evaluate every 5s
 
-  // E2 instant respawn — if belt is empty during E2, spawn immediately
+  // Instant respawn — if belt is empty in ANY phase, spawn immediately
   useEffect(() => {
-    if (phase !== 'E2') return;
+    if (phase !== 'PLAYING' && phase !== 'E2') return;
     if (belt.activeCount === 0) {
       const el = elR.current;
       const d = el < 10000 ? 1 : el < 25000 ? 2 : 3;

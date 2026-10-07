@@ -1,4 +1,9 @@
+import { useState } from 'react';
+import InstructionPopup from '../components/InstructionPopup';
+
 export default function IntroScreen({ onStart, theme }) {
+  const [showInstructions, setShowInstructions] = useState(false);
+
   return (
     <div style={{
       height: '100vh', display: 'flex', flexDirection: 'column',
@@ -12,8 +17,10 @@ export default function IntroScreen({ onStart, theme }) {
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>{theme.dark ? '☀️' : '🌙'}</button>
       </div>
+
       <img src="/assets/kenney/robot-pack/Side view/robot_redBody.png" alt=""
         style={{ width: 96, height: 96, imageRendering: 'auto', animation: 'float 2s ease-in-out infinite', marginBottom: '1.5rem' }} />
+
       <h1 style={{ fontSize: 'clamp(2.5rem,6vw,4rem)', fontWeight: 900, lineHeight: 1.1, marginBottom: '.4rem' }}>
         <span style={{ color: 'var(--n-turquoise)' }}>Campaign</span>{' '}
         <span style={{ color: 'var(--n-purple)' }}>Chaos</span>
@@ -21,7 +28,8 @@ export default function IntroScreen({ onStart, theme }) {
       <p style={{ color: 'var(--text2)', fontSize: '1.1rem', maxWidth: 440, marginBottom: '2rem', lineHeight: 1.6 }}>
         Match messy placement labels to database entries before packages fall off the belt.
       </p>
-      <button onClick={onStart} style={{
+
+      <button onClick={() => setShowInstructions(true)} style={{
         padding: '16px 56px', fontSize: '1.2rem', fontWeight: 800,
         color: '#fff', background: 'linear-gradient(135deg,var(--n-turquoise),var(--n-purple))',
         border: 'none', borderRadius: 12, cursor: 'pointer',
@@ -30,9 +38,12 @@ export default function IntroScreen({ onStart, theme }) {
         onMouseOver={e => e.target.style.transform = 'scale(1.06)'}
         onMouseOut={e => e.target.style.transform = 'scale(1)'}
       >Start Game</button>
+
       <div style={{ marginTop: '2rem', display: 'flex', gap: '1.5rem', color: 'var(--text3)', fontSize: '.8rem' }}>
         <span>⌨️ Type to search</span><span>↑↓ Navigate</span><span>↵ Confirm</span>
       </div>
+
+      {showInstructions && <InstructionPopup onClose={onStart} />}
     </div>
   );
 }
